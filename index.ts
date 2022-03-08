@@ -5,7 +5,6 @@ import bodyParser from "body-parser";
 const cors = require("cors");
 
 const app = express();
-const port = 8080;
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -13,6 +12,6 @@ app.use(bodyParser.json());
 // Routes
 app.use(router);
 
-app.listen(process.env.port || port, () => {
-	console.log(`anki-server listening at http://localhost:${process.env.port || port}`);
+app.listen(process.env.PORT || 8080, () => {
+	console.log(`anki-server listening at http://localhost:${process.env.PORT || 8080}`);
 });
