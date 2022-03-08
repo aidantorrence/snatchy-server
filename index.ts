@@ -2,7 +2,7 @@ import express from "express";
 import router from "./src/routes";
 
 import bodyParser from "body-parser";
-import cors from "cors";
+const cors = require("cors");
 
 const app = express();
 const port = 8080;
