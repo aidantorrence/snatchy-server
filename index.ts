@@ -13,6 +13,6 @@ app.use(bodyParser.json());
 // Routes
 app.use(router);
 
-app.listen(port, () => {
-	console.log(`anki-server listening at http://localhost:${port}`);
+app.listen(process.env.port || port, () => {
+	console.log(`anki-server listening at http://localhost:${process.env.port || port}`);
 });
