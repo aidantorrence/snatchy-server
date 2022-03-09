@@ -2,12 +2,12 @@ import Router from "express-promise-router";
 import { PrismaClient } from "@prisma/client";
 import { DateTime } from "luxon";
 
-const startOfDay = DateTime.now().startOf("day").toUTC().toISO();
 
 const prisma = new PrismaClient();
 
 const tasks = Router();
 tasks.get("/tasks-completed-today", async (req, res) => {
+	const startOfDay = DateTime.now().startOf("day").toUTC().toISO();
 	try {
 		const tasks = await prisma.task.findMany({
 			where: {
