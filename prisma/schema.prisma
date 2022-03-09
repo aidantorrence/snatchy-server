@@ -23,8 +23,18 @@ model Post {
 }
 
 model User {
-  id      Int      @id @default(autoincrement())
-  email   String   @unique
-  name    String?
-  posts   Post[]
+  id    Int     @id @default(autoincrement())
+  email String  @unique
+  name  String?
+  posts Post[]
+  tasks Task[]
+}
+
+model Task {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  content   String?
+  author    User     @relation(fields: [authorId], references: [id])
+  authorId  Int
 }
