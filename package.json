@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "license": "MIT",
   "scripts": {
-    "start": "ts-node-dev index.ts",
+    "start": "ts-node index.ts",
+    "dev": "nodemon -x ts-node index.ts",
     "test": "jest"
   },
   "dependencies": {
