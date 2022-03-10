@@ -24,9 +24,20 @@ ankis.post("/ankis", async (req, res) => {
 	}
 });
 
+ankis.get("/least-recently-viewed-anki", async (req, res) => {
+	try {
+		const post = await prisma.$queryRaw`
+			SELECT * FROM "Post"
+            WHERE "updatedAt" = (SELECT min("updatedAt") FROM "Post")
+        `;
+		res.json(post);
+	} catch (e) {
+		res.json(e);
+	}
+});
 ankis.patch("/least-recently-viewed-anki", async (req, res) => {
 	try {
-        const post = await prisma.$queryRaw`
+		const post = await prisma.$queryRaw`
             UPDATE "Post"
             SET "updatedAt" = now()
             WHERE "updatedAt" = (SELECT min("updatedAt") FROM "Post")
