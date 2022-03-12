@@ -13,7 +13,7 @@ ankis.get("/ankis", async (req, res) => {
 	}
 });
 
-ankis.post("/ankis", async (req, res) => {
+ankis.post("/anki", async (req, res) => {
 	try {
 		const posts = await prisma.post.create({
 			data: req.body,
