@@ -87,13 +87,13 @@ ankis.post("/ankis", function (req, res) { return __awaiter(void 0, void 0, void
         }
     });
 }); });
-ankis.get("/least-recently-viewed-anki", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+ankis.get("/anki-to-review", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var post, e_3;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
                 _a.trys.push([0, 2, , 3]);
-                return [4 /*yield*/, prisma.$queryRaw(templateObject_1 || (templateObject_1 = __makeTemplateObject(["\n\t\t\tSELECT * FROM \"Post\"\n            WHERE \"updatedAt\" = (SELECT min(\"updatedAt\") FROM \"Post\")\n        "], ["\n\t\t\tSELECT * FROM \"Post\"\n            WHERE \"updatedAt\" = (SELECT min(\"updatedAt\") FROM \"Post\")\n        "])))];
+                return [4 /*yield*/, prisma.$queryRaw(templateObject_1 || (templateObject_1 = __makeTemplateObject(["\n\t\t\tSELECT * FROM \"Post\"\n            WHERE \"reviewDate\" = (SELECT min(\"reviewDate\") FROM \"Post\")\n\t\t\tLIMIT 1\n        "], ["\n\t\t\tSELECT * FROM \"Post\"\n            WHERE \"reviewDate\" = (SELECT min(\"reviewDate\") FROM \"Post\")\n\t\t\tLIMIT 1\n        "])))];
             case 1:
                 post = _a.sent();
                 res.json(post);
@@ -106,24 +106,30 @@ ankis.get("/least-recently-viewed-anki", function (req, res) { return __awaiter(
         }
     });
 }); });
-ankis.patch("/least-recently-viewed-anki", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var post, e_4;
+ankis.patch("/anki", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var id, post, e_4;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                _a.trys.push([0, 2, , 3]);
-                return [4 /*yield*/, prisma.$queryRaw(templateObject_2 || (templateObject_2 = __makeTemplateObject(["\n            UPDATE \"Post\"\n            SET \"updatedAt\" = now()\n            WHERE \"updatedAt\" = (SELECT min(\"updatedAt\") FROM \"Post\")\n            RETURNING *\n        "], ["\n            UPDATE \"Post\"\n            SET \"updatedAt\" = now()\n            WHERE \"updatedAt\" = (SELECT min(\"updatedAt\") FROM \"Post\")\n            RETURNING *\n        "])))];
+                id = req.body.id;
+                _a.label = 1;
             case 1:
+                _a.trys.push([1, 3, , 4]);
+                return [4 /*yield*/, prisma.post.update({
+                        where: { id: id },
+                        data: req.body,
+                    })];
+            case 2:
                 post = _a.sent();
                 res.json(post);
-                return [3 /*break*/, 3];
-            case 2:
+                return [3 /*break*/, 4];
+            case 3:
                 e_4 = _a.sent();
                 res.json(e_4);
-                return [3 /*break*/, 3];
-            case 3: return [2 /*return*/];
+                return [3 /*break*/, 4];
+            case 4: return [2 /*return*/];
         }
     });
 }); });
 exports.default = ankis;
-var templateObject_1, templateObject_2;
+var templateObject_1;
