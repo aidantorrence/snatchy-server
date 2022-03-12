@@ -66,7 +66,7 @@ ankis.get("/ankis", function (req, res) { return __awaiter(void 0, void 0, void 
         }
     });
 }); });
-ankis.post("/ankis", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+ankis.post("/anki", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var posts, e_2;
     return __generator(this, function (_a) {
         switch (_a.label) {
