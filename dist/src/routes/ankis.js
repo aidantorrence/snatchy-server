@@ -78,9 +78,11 @@ ankis.post("/anki", function (req, res) { return __awaiter(void 0, void 0, void 
             case 1:
                 posts = _a.sent();
                 res.status(200).send("post created");
+                console.log(posts);
                 return [3 /*break*/, 3];
             case 2:
                 e_2 = _a.sent();
+                console.log(e_2);
                 res.status(400).send("post failed");
                 return [3 /*break*/, 3];
             case 3: return [2 /*return*/];
@@ -93,7 +95,7 @@ ankis.get("/anki-to-review", function (req, res) { return __awaiter(void 0, void
         switch (_a.label) {
             case 0:
                 _a.trys.push([0, 2, , 3]);
-                return [4 /*yield*/, prisma.$queryRaw(templateObject_1 || (templateObject_1 = __makeTemplateObject(["\n\t\t\tSELECT * FROM \"Post\"\n            WHERE \"reviewDate\" = (SELECT min(\"reviewDate\") FROM \"Post\")\n\t\t\tLIMIT 1\n        "], ["\n\t\t\tSELECT * FROM \"Post\"\n            WHERE \"reviewDate\" = (SELECT min(\"reviewDate\") FROM \"Post\")\n\t\t\tLIMIT 1\n        "])))];
+                return [4 /*yield*/, prisma.$queryRaw(templateObject_1 || (templateObject_1 = __makeTemplateObject(["\n\t\t\tSELECT * FROM \"Post\"\n            WHERE \"reviewDate\" = (\n\t\t\t\tSELECT min(\"reviewDate\") \n\t\t\t\tFROM \"Post\"\n\t\t\t\tWHERE (\"updatedAt\" < NOW() - INTERVAL '6 hours' OR EXTRACT (epoch from (\"updatedAt\" - \"createdAt\")) < 60)\n\t\t\t\t)\n\t\t\tLIMIT 1\n        "], ["\n\t\t\tSELECT * FROM \"Post\"\n            WHERE \"reviewDate\" = (\n\t\t\t\tSELECT min(\"reviewDate\") \n\t\t\t\tFROM \"Post\"\n\t\t\t\tWHERE (\"updatedAt\" < NOW() - INTERVAL '6 hours' OR EXTRACT (epoch from (\"updatedAt\" - \"createdAt\")) < 60)\n\t\t\t\t)\n\t\t\tLIMIT 1\n        "])))];
             case 1:
                 post = _a.sent();
                 res.json(post);
@@ -126,6 +128,30 @@ ankis.patch("/anki", function (req, res) { return __awaiter(void 0, void 0, void
             case 3:
                 e_4 = _a.sent();
                 res.json(e_4);
+                return [3 /*break*/, 4];
+            case 4: return [2 /*return*/];
+        }
+    });
+}); });
+ankis.delete("/anki", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var id, post, e_5;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                id = req.body.id;
+                _a.label = 1;
+            case 1:
+                _a.trys.push([1, 3, , 4]);
+                return [4 /*yield*/, prisma.post.delete({
+                        where: { id: id },
+                    })];
+            case 2:
+                post = _a.sent();
+                res.json(post);
+                return [3 /*break*/, 4];
+            case 3:
+                e_5 = _a.sent();
+                res.json(e_5);
                 return [3 /*break*/, 4];
             case 4: return [2 /*return*/];
         }
