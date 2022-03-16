@@ -45,6 +45,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var express_promise_router_1 = __importDefault(require("express-promise-router"));
 var client_1 = require("@prisma/client");
+var luxon_1 = require("luxon");
 var prisma = new client_1.PrismaClient();
 var ankis = (0, express_promise_router_1.default)();
 ankis.get("/ankis", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
@@ -66,8 +67,30 @@ ankis.get("/ankis", function (req, res) { return __awaiter(void 0, void 0, void 
         }
     });
 }); });
+ankis.get("/ankis-completed-today", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var startOfDay, post, e_2;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                startOfDay = luxon_1.DateTime.now().startOf("day").toUTC().toISO();
+                _a.label = 1;
+            case 1:
+                _a.trys.push([1, 3, , 4]);
+                return [4 /*yield*/, prisma.$queryRaw(templateObject_1 || (templateObject_1 = __makeTemplateObject(["\n\t\t\tSELECT COUNT(id) FROM \"Post\"\n            WHERE DATE(\"lastReviewedDate\" at time zone 'utc' at time zone 'est') = DATE(NOW() at time zone 'utc' at time zone 'est')\n\t\t\tAND DATE(\"reviewDate\" at time zone 'utc' at time zone 'est') <> DATE(NOW() at time zone 'utc' at time zone 'est')\n        "], ["\n\t\t\tSELECT COUNT(id) FROM \"Post\"\n            WHERE DATE(\"lastReviewedDate\" at time zone 'utc' at time zone 'est') = DATE(NOW() at time zone 'utc' at time zone 'est')\n\t\t\tAND DATE(\"reviewDate\" at time zone 'utc' at time zone 'est') <> DATE(NOW() at time zone 'utc' at time zone 'est')\n        "])))];
+            case 2:
+                post = _a.sent();
+                res.json(post);
+                return [3 /*break*/, 4];
+            case 3:
+                e_2 = _a.sent();
+                res.json(e_2);
+                return [3 /*break*/, 4];
+            case 4: return [2 /*return*/];
+        }
+    });
+}); });
 ankis.post("/anki", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var posts, e_2;
+    var posts, e_3;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -80,7 +103,7 @@ ankis.post("/anki", function (req, res) { return __awaiter(void 0, void 0, void 
                 res.status(200).send("post created");
                 return [3 /*break*/, 3];
             case 2:
-                e_2 = _a.sent();
+                e_3 = _a.sent();
                 res.status(400).send("post failed");
                 return [3 /*break*/, 3];
             case 3: return [2 /*return*/];
@@ -88,26 +111,27 @@ ankis.post("/anki", function (req, res) { return __awaiter(void 0, void 0, void 
     });
 }); });
 ankis.get("/anki-to-review", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var post, e_3;
+    var post, e_4;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
                 _a.trys.push([0, 2, , 3]);
-                return [4 /*yield*/, prisma.$queryRaw(templateObject_1 || (templateObject_1 = __makeTemplateObject(["\n\t\t\tSELECT * FROM \"Post\"\n            WHERE \"reviewDate\" = (\n\t\t\t\tSELECT min(\"reviewDate\") \n\t\t\t\tFROM \"Post\"\n\t\t\t\tWHERE (\"updatedAt\" < NOW() - INTERVAL '6 hours' OR EXTRACT (epoch from (\"updatedAt\" - \"createdAt\")) < 60)\n\t\t\t\t)\n\t\t\tLIMIT 1\n        "], ["\n\t\t\tSELECT * FROM \"Post\"\n            WHERE \"reviewDate\" = (\n\t\t\t\tSELECT min(\"reviewDate\") \n\t\t\t\tFROM \"Post\"\n\t\t\t\tWHERE (\"updatedAt\" < NOW() - INTERVAL '6 hours' OR EXTRACT (epoch from (\"updatedAt\" - \"createdAt\")) < 60)\n\t\t\t\t)\n\t\t\tLIMIT 1\n        "])))];
+                return [4 /*yield*/, prisma.$queryRaw(templateObject_2 || (templateObject_2 = __makeTemplateObject(["\n\t\t\tSELECT * FROM \"Post\"\n            WHERE \"reviewDate\" = (\n\t\t\t\tSELECT min(\"reviewDate\") \n\t\t\t\tFROM \"Post\"\n\t\t\t\tWHERE ( date(timezone('EST', \"lastReviewedDate\") ) <> date( timezone('EST', now()) ) )\n\t\t\t\t)\n\t\t\tLIMIT 1\n        "], ["\n\t\t\tSELECT * FROM \"Post\"\n            WHERE \"reviewDate\" = (\n\t\t\t\tSELECT min(\"reviewDate\") \n\t\t\t\tFROM \"Post\"\n\t\t\t\tWHERE ( date(timezone('EST', \"lastReviewedDate\") ) <> date( timezone('EST', now()) ) )\n\t\t\t\t)\n\t\t\tLIMIT 1\n        "])))];
             case 1:
                 post = _a.sent();
+                // WHERE ("updatedAt" < NOW() - INTERVAL '6 hours' OR EXTRACT (epoch from ("updatedAt" - "createdAt")) < 60)
                 res.json(post);
                 return [3 /*break*/, 3];
             case 2:
-                e_3 = _a.sent();
-                res.json(e_3);
+                e_4 = _a.sent();
+                res.json(e_4);
                 return [3 /*break*/, 3];
             case 3: return [2 /*return*/];
         }
     });
 }); });
 ankis.patch("/anki", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var id, post, e_4;
+    var id, post, e_5;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -124,15 +148,15 @@ ankis.patch("/anki", function (req, res) { return __awaiter(void 0, void 0, void
                 res.json(post);
                 return [3 /*break*/, 4];
             case 3:
-                e_4 = _a.sent();
-                res.json(e_4);
+                e_5 = _a.sent();
+                res.json(e_5);
                 return [3 /*break*/, 4];
             case 4: return [2 /*return*/];
         }
     });
 }); });
 ankis.delete("/anki", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var id, post, e_5;
+    var id, post, e_6;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -148,12 +172,12 @@ ankis.delete("/anki", function (req, res) { return __awaiter(void 0, void 0, voi
                 res.json(post);
                 return [3 /*break*/, 4];
             case 3:
-                e_5 = _a.sent();
-                res.json(e_5);
+                e_6 = _a.sent();
+                res.json(e_6);
                 return [3 /*break*/, 4];
             case 4: return [2 /*return*/];
         }
     });
 }); });
 exports.default = ankis;
-var templateObject_1;
+var templateObject_1, templateObject_2;

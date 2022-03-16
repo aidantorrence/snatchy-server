@@ -1,5 +1,6 @@
 import Router from "express-promise-router";
 import { PrismaClient } from "@prisma/client";
+import { DateTime } from "luxon";
 
 const prisma = new PrismaClient();
 
@@ -8,6 +9,20 @@ ankis.get("/ankis", async (req, res) => {
 	try {
 		const posts = await prisma.post.findMany();
 		res.json(posts);
+	} catch (e) {
+		res.json(e);
+	}
+});
+
+ankis.get("/ankis-completed-today", async (req, res) => {
+	const startOfDay = DateTime.now().startOf("day").toUTC().toISO();
+	try {
+		const post = await prisma.$queryRaw`
+			SELECT COUNT(id) FROM "Post"
+            WHERE DATE("lastReviewedDate" at time zone 'utc' at time zone 'est') = DATE(NOW() at time zone 'utc' at time zone 'est')
+			AND DATE("reviewDate" at time zone 'utc' at time zone 'est') <> DATE(NOW() at time zone 'utc' at time zone 'est')
+        `;
+		res.json(post);
 	} catch (e) {
 		res.json(e);
 	}
@@ -31,10 +46,11 @@ ankis.get("/anki-to-review", async (req, res) => {
             WHERE "reviewDate" = (
 				SELECT min("reviewDate") 
 				FROM "Post"
-				WHERE ("updatedAt" < NOW() - INTERVAL '6 hours' OR EXTRACT (epoch from ("updatedAt" - "createdAt")) < 60)
+				WHERE ( date(timezone('EST', "lastReviewedDate") ) <> date( timezone('EST', now()) ) )
 				)
 			LIMIT 1
         `;
+		// WHERE ("updatedAt" < NOW() - INTERVAL '6 hours' OR EXTRACT (epoch from ("updatedAt" - "createdAt")) < 60)
 		res.json(post);
 	} catch (e) {
 		res.json(e);
