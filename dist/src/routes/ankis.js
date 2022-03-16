@@ -78,11 +78,9 @@ ankis.post("/anki", function (req, res) { return __awaiter(void 0, void 0, void 
             case 1:
                 posts = _a.sent();
                 res.status(200).send("post created");
-                console.log(posts);
                 return [3 /*break*/, 3];
             case 2:
                 e_2 = _a.sent();
-                console.log(e_2);
                 res.status(400).send("post failed");
                 return [3 /*break*/, 3];
             case 3: return [2 /*return*/];

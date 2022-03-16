@@ -19,9 +19,7 @@ ankis.post("/anki", async (req, res) => {
 			data: req.body,
 		});
 		res.status(200).send("post created");
-		console.log(posts);
 	} catch (e) {
-		console.log(e);
 		res.status(400).send("post failed");
 	}
 });

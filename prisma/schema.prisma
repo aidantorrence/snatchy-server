@@ -16,11 +16,12 @@ model Post {
   updatedAt  DateTime @updatedAt
   title      String   @db.VarChar()
   solution   String
+  topic      String   @default("")
+  reviewDate DateTime @default(now())
+  daysToAdd  Int      @default(0)
   published  Boolean  @default(false)
   author     User     @relation(fields: [authorId], references: [id])
   authorId   Int
-  reviewDate DateTime @default(now())
-  daysToAdd  Int      @default(0)
 }
 
 model User {
