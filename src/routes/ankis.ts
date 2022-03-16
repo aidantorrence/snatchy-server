@@ -46,8 +46,8 @@ ankis.get("/anki-to-review", async (req, res) => {
             WHERE "reviewDate" = (
 				SELECT min("reviewDate") 
 				FROM "Post"
-				WHERE ( date(timezone('EST', "lastReviewedDate") ) <> date( timezone('EST', now()) ) )
-				)
+				WHERE ( "lastReviewedDate" IS NULL OR DATE("lastReviewedDate" at time zone 'utc' at time zone 'est') <> DATE(NOW() at time zone 'utc' at time zone 'est') )
+			)
 			LIMIT 1
         `;
 		// WHERE ("updatedAt" < NOW() - INTERVAL '6 hours' OR EXTRACT (epoch from ("updatedAt" - "createdAt")) < 60)
