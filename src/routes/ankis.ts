@@ -1,5 +1,5 @@
 import Router from "express-promise-router";
-import { PrismaClient } from "@prisma/client";
+import { Prisma, PrismaClient } from "@prisma/client";
 import { DateTime } from "luxon";
 
 const prisma = new PrismaClient();
@@ -47,6 +47,7 @@ ankis.get("/anki-to-review", async (req, res) => {
 				SELECT min("reviewDate") 
 				FROM "Post"
 				WHERE ( "lastReviewedDate" IS NULL OR DATE("lastReviewedDate" at time zone 'utc' at time zone 'est') <> DATE(NOW() at time zone 'utc' at time zone 'est') )
+				AND ENABLED = true
 			)
 			LIMIT 1
         `;
@@ -64,6 +65,20 @@ ankis.patch("/anki", async (req, res) => {
 			where: { id },
 			data: req.body,
 		});
+		res.json(post);
+	} catch (e) {
+		res.json(e);
+	}
+});
+ankis.patch("/filter-ankis", async (req, res) => {
+	const ids = req.body;
+	try {
+		const post = await prisma.$queryRaw`
+			update "Post" 
+			set "enabled" = 
+			CASE when topic in (${Prisma.join(ids)}) THEN TRUE
+			ELSE FALSE END
+		`;
 		res.json(post);
 	} catch (e) {
 		res.json(e);

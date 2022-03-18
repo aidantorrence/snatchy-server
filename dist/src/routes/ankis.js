@@ -116,7 +116,7 @@ ankis.get("/anki-to-review", function (req, res) { return __awaiter(void 0, void
         switch (_a.label) {
             case 0:
                 _a.trys.push([0, 2, , 3]);
-                return [4 /*yield*/, prisma.$queryRaw(templateObject_2 || (templateObject_2 = __makeTemplateObject(["\n\t\t\tSELECT * FROM \"Post\"\n            WHERE \"reviewDate\" = (\n\t\t\t\tSELECT min(\"reviewDate\") \n\t\t\t\tFROM \"Post\"\n\t\t\t\tWHERE ( \"lastReviewedDate\" IS NULL OR DATE(\"lastReviewedDate\" at time zone 'utc' at time zone 'est') <> DATE(NOW() at time zone 'utc' at time zone 'est') )\n\t\t\t)\n\t\t\tLIMIT 1\n        "], ["\n\t\t\tSELECT * FROM \"Post\"\n            WHERE \"reviewDate\" = (\n\t\t\t\tSELECT min(\"reviewDate\") \n\t\t\t\tFROM \"Post\"\n\t\t\t\tWHERE ( \"lastReviewedDate\" IS NULL OR DATE(\"lastReviewedDate\" at time zone 'utc' at time zone 'est') <> DATE(NOW() at time zone 'utc' at time zone 'est') )\n\t\t\t)\n\t\t\tLIMIT 1\n        "])))];
+                return [4 /*yield*/, prisma.$queryRaw(templateObject_2 || (templateObject_2 = __makeTemplateObject(["\n\t\t\tSELECT * FROM \"Post\"\n            WHERE \"reviewDate\" = (\n\t\t\t\tSELECT min(\"reviewDate\") \n\t\t\t\tFROM \"Post\"\n\t\t\t\tWHERE ( \"lastReviewedDate\" IS NULL OR DATE(\"lastReviewedDate\" at time zone 'utc' at time zone 'est') <> DATE(NOW() at time zone 'utc' at time zone 'est') )\n\t\t\t\tAND ENABLED = true\n\t\t\t)\n\t\t\tLIMIT 1\n        "], ["\n\t\t\tSELECT * FROM \"Post\"\n            WHERE \"reviewDate\" = (\n\t\t\t\tSELECT min(\"reviewDate\") \n\t\t\t\tFROM \"Post\"\n\t\t\t\tWHERE ( \"lastReviewedDate\" IS NULL OR DATE(\"lastReviewedDate\" at time zone 'utc' at time zone 'est') <> DATE(NOW() at time zone 'utc' at time zone 'est') )\n\t\t\t\tAND ENABLED = true\n\t\t\t)\n\t\t\tLIMIT 1\n        "])))];
             case 1:
                 post = _a.sent();
                 // WHERE ("updatedAt" < NOW() - INTERVAL '6 hours' OR EXTRACT (epoch from ("updatedAt" - "createdAt")) < 60)
@@ -155,8 +155,30 @@ ankis.patch("/anki", function (req, res) { return __awaiter(void 0, void 0, void
         }
     });
 }); });
+ankis.patch("/filter-ankis", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var ids, post, e_6;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                ids = req.body;
+                _a.label = 1;
+            case 1:
+                _a.trys.push([1, 3, , 4]);
+                return [4 /*yield*/, prisma.$queryRaw(templateObject_3 || (templateObject_3 = __makeTemplateObject(["\n\t\t\tupdate \"Post\" \n\t\t\tset \"enabled\" = \n\t\t\tCASE when topic in (", ") THEN TRUE\n\t\t\tELSE FALSE END\n\t\t"], ["\n\t\t\tupdate \"Post\" \n\t\t\tset \"enabled\" = \n\t\t\tCASE when topic in (", ") THEN TRUE\n\t\t\tELSE FALSE END\n\t\t"])), client_1.Prisma.join(ids))];
+            case 2:
+                post = _a.sent();
+                res.json(post);
+                return [3 /*break*/, 4];
+            case 3:
+                e_6 = _a.sent();
+                res.json(e_6);
+                return [3 /*break*/, 4];
+            case 4: return [2 /*return*/];
+        }
+    });
+}); });
 ankis.delete("/anki", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var id, post, e_6;
+    var id, post, e_7;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -172,12 +194,12 @@ ankis.delete("/anki", function (req, res) { return __awaiter(void 0, void 0, voi
                 res.json(post);
                 return [3 /*break*/, 4];
             case 3:
-                e_6 = _a.sent();
-                res.json(e_6);
+                e_7 = _a.sent();
+                res.json(e_7);
                 return [3 /*break*/, 4];
             case 4: return [2 /*return*/];
         }
     });
 }); });
 exports.default = ankis;
-var templateObject_1, templateObject_2;
+var templateObject_1, templateObject_2, templateObject_3;
