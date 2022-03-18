@@ -11,18 +11,28 @@ datasource db {
 }
 
 model Post {
-  id               Int      @id @default(autoincrement())
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-  title            String   @db.VarChar()
+  id               Int       @id @default(autoincrement())
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  title            String    @db.VarChar()
   solution         String
-  topic            String   @default("")
-  reviewDate       DateTime @default(now())
-  daysToAdd        Int      @default(0)
-  published        Boolean  @default(false)
-  author           User     @relation(fields: [authorId], references: [id])
+  topic            String    @default("")
+  reviewDate       DateTime  @default(now())
+  daysToAdd        Int       @default(0)
+  published        Boolean   @default(false)
+  author           User      @relation(fields: [authorId], references: [id])
   authorId         Int
-  lastReviewedDate DateTime? 
+  lastReviewedDate DateTime?
+  topicId          Int       @default(0)
+  // Topic            Topic     @relation(fields: [topicId], references: [id])
+}
+
+model Topic {
+  id      Int     @id @default(autoincrement())
+  name    String  @unique
+  enabled Boolean @default(true)
+  // posts   Post[]
+
 }
 
 model User {
