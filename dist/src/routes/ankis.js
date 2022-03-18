@@ -143,6 +143,9 @@ ankis.get("/topics", function (req, res) { return __awaiter(void 0, void 0, void
                             enabled: true,
                         },
                         distinct: ["topic"],
+                        orderBy: {
+                            topic: "asc",
+                        }
                     })];
             case 1:
                 post = _a.sent();

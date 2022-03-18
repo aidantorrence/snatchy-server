@@ -66,6 +66,9 @@ ankis.get("/topics", async (req, res) => {
 				enabled: true,
 			},
 			distinct: ["topic"],
+			orderBy: {
+				topic: "asc",
+			}
 		});
 		res.json(post);
 	} catch (e) {
