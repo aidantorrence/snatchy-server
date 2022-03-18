@@ -23,16 +23,13 @@ model Post {
   author           User      @relation(fields: [authorId], references: [id])
   authorId         Int
   lastReviewedDate DateTime?
-  topicId          Int       @default(0)
-  // Topic            Topic     @relation(fields: [topicId], references: [id])
+  enabled          Boolean   @default(true)
 }
 
 model Topic {
   id      Int     @id @default(autoincrement())
   name    String  @unique
   enabled Boolean @default(true)
-  // posts   Post[]
-
 }
 
 model User {
