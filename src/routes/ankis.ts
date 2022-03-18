@@ -62,6 +62,7 @@ ankis.get("/topics", async (req, res) => {
 		const post = await prisma.post.findMany({
 			select: {
 				topic: true,
+				enabled: true,
 			},
 			distinct: ["topic"],
 		});
