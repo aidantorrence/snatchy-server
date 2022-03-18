@@ -130,8 +130,32 @@ ankis.get("/anki-to-review", function (req, res) { return __awaiter(void 0, void
         }
     });
 }); });
+ankis.get("/topics", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var post, e_5;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                _a.trys.push([0, 2, , 3]);
+                return [4 /*yield*/, prisma.post.findMany({
+                        select: {
+                            topic: true,
+                        },
+                        distinct: ["topic"],
+                    })];
+            case 1:
+                post = _a.sent();
+                res.json(post);
+                return [3 /*break*/, 3];
+            case 2:
+                e_5 = _a.sent();
+                res.json(e_5);
+                return [3 /*break*/, 3];
+            case 3: return [2 /*return*/];
+        }
+    });
+}); });
 ankis.patch("/anki", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var id, post, e_5;
+    var id, post, e_6;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -148,15 +172,15 @@ ankis.patch("/anki", function (req, res) { return __awaiter(void 0, void 0, void
                 res.json(post);
                 return [3 /*break*/, 4];
             case 3:
-                e_5 = _a.sent();
-                res.json(e_5);
+                e_6 = _a.sent();
+                res.json(e_6);
                 return [3 /*break*/, 4];
             case 4: return [2 /*return*/];
         }
     });
 }); });
 ankis.patch("/filter-ankis", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var ids, post, e_6;
+    var ids, post, e_7;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -170,15 +194,15 @@ ankis.patch("/filter-ankis", function (req, res) { return __awaiter(void 0, void
                 res.json(post);
                 return [3 /*break*/, 4];
             case 3:
-                e_6 = _a.sent();
-                res.json(e_6);
+                e_7 = _a.sent();
+                res.json(e_7);
                 return [3 /*break*/, 4];
             case 4: return [2 /*return*/];
         }
     });
 }); });
 ankis.delete("/anki", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var id, post, e_7;
+    var id, post, e_8;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -194,8 +218,8 @@ ankis.delete("/anki", function (req, res) { return __awaiter(void 0, void 0, voi
                 res.json(post);
                 return [3 /*break*/, 4];
             case 3:
-                e_7 = _a.sent();
-                res.json(e_7);
+                e_8 = _a.sent();
+                res.json(e_8);
                 return [3 /*break*/, 4];
             case 4: return [2 /*return*/];
         }

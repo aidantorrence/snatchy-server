@@ -57,6 +57,19 @@ ankis.get("/anki-to-review", async (req, res) => {
 		res.json(e);
 	}
 });
+ankis.get("/topics", async (req, res) => {
+	try {
+		const post = await prisma.post.findMany({
+			select: {
+				topic: true,
+			},
+			distinct: ["topic"],
+		});
+		res.json(post);
+	} catch (e) {
+		res.json(e);
+	}
+});
 
 ankis.patch("/anki", async (req, res) => {
 	const { id } = req.body;
