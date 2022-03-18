@@ -138,6 +138,7 @@ ankis.get("/topics", function (req, res) { return __awaiter(void 0, void 0, void
                 _a.trys.push([0, 2, , 3]);
                 return [4 /*yield*/, prisma.post.findMany({
                         select: {
+                            id: true,
                             topic: true,
                             enabled: true,
                         },
