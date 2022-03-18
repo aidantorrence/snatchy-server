@@ -86,19 +86,31 @@ ankis.patch("/anki", async (req, res) => {
 	}
 });
 ankis.patch("/filter-ankis", async (req, res) => {
-	const ids = req.body;
+	const { topic } = req.body;
 	try {
-		const post = await prisma.$queryRaw`
-			update "Post" 
-			set "enabled" = 
-			CASE when topic in (${Prisma.join(ids)}) THEN TRUE
-			ELSE FALSE END
-		`;
+		const post = await prisma.post.updateMany({
+			where: { topic },
+			data: req.body,
+		});
 		res.json(post);
 	} catch (e) {
 		res.json(e);
 	}
 });
+// ankis.patch("/filter-ankis", async (req, res) => {
+// 	const ids = req.body;
+// 	try {
+// 		const post = await prisma.$queryRaw`
+// 			update "Post"
+// 			set "enabled" =
+// 			CASE when topic in (${Prisma.join(ids)}) THEN TRUE
+// 			ELSE FALSE END
+// 		`;
+// 		res.json(post);
+// 	} catch (e) {
+// 		res.json(e);
+// 	}
+// });
 
 ankis.delete("/anki", async (req, res) => {
 	const { id } = req.body;

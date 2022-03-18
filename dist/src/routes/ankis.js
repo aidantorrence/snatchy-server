@@ -182,15 +182,18 @@ ankis.patch("/anki", function (req, res) { return __awaiter(void 0, void 0, void
     });
 }); });
 ankis.patch("/filter-ankis", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var ids, post, e_7;
+    var topic, post, e_7;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                ids = req.body;
+                topic = req.body.topic;
                 _a.label = 1;
             case 1:
                 _a.trys.push([1, 3, , 4]);
-                return [4 /*yield*/, prisma.$queryRaw(templateObject_3 || (templateObject_3 = __makeTemplateObject(["\n\t\t\tupdate \"Post\" \n\t\t\tset \"enabled\" = \n\t\t\tCASE when topic in (", ") THEN TRUE\n\t\t\tELSE FALSE END\n\t\t"], ["\n\t\t\tupdate \"Post\" \n\t\t\tset \"enabled\" = \n\t\t\tCASE when topic in (", ") THEN TRUE\n\t\t\tELSE FALSE END\n\t\t"])), client_1.Prisma.join(ids))];
+                return [4 /*yield*/, prisma.post.updateMany({
+                        where: { topic: topic },
+                        data: req.body,
+                    })];
             case 2:
                 post = _a.sent();
                 res.json(post);
@@ -203,6 +206,20 @@ ankis.patch("/filter-ankis", function (req, res) { return __awaiter(void 0, void
         }
     });
 }); });
+// ankis.patch("/filter-ankis", async (req, res) => {
+// 	const ids = req.body;
+// 	try {
+// 		const post = await prisma.$queryRaw`
+// 			update "Post"
+// 			set "enabled" =
+// 			CASE when topic in (${Prisma.join(ids)}) THEN TRUE
+// 			ELSE FALSE END
+// 		`;
+// 		res.json(post);
+// 	} catch (e) {
+// 		res.json(e);
+// 	}
+// });
 ankis.delete("/anki", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var id, post, e_8;
     return __generator(this, function (_a) {
@@ -228,4 +245,4 @@ ankis.delete("/anki", function (req, res) { return __awaiter(void 0, void 0, voi
     });
 }); });
 exports.default = ankis;
-var templateObject_1, templateObject_2, templateObject_3;
+var templateObject_1, templateObject_2;
