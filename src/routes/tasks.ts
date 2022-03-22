@@ -31,13 +31,37 @@ tasks.get("/tasks-completed-today", async (req, res) => {
 		res.json(e);
 	}
 });
+tasks.get("/backlog", async (req, res) => {
+	try {
+		const tasks = await prisma.task.findMany({
+			where: {
+				completed: false,
+			},
+		});
+		res.json(tasks);
+	} catch (e) {
+		res.json(e);
+	}
+});
 
 tasks.post("/tasks", async (req, res) => {
 	try {
-		const posts = await prisma.task.create({
+		const tasks = await prisma.task.create({
 			data: req.body,
 		});
 		res.status(200).send("task created");
+	} catch (e) {
+		res.status(400).send("task failed");
+	}
+});
+tasks.delete("/tasks", async (req, res) => {
+	try {
+		const tasks = await prisma.task.delete({
+			where: {
+				id: req.body.id,
+			},
+		});
+		res.status(200).send("task deleted");
 	} catch (e) {
 		res.status(400).send("task failed");
 	}
