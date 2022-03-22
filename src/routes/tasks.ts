@@ -2,7 +2,6 @@ import Router from "express-promise-router";
 import { PrismaClient } from "@prisma/client";
 import { DateTime } from "luxon";
 
-
 const prisma = new PrismaClient();
 
 const tasks = Router();
@@ -50,6 +49,19 @@ tasks.post("/tasks", async (req, res) => {
 			data: req.body,
 		});
 		res.status(200).send("task created");
+	} catch (e) {
+		res.status(400).send("task failed");
+	}
+});
+tasks.patch("/tasks", async (req, res) => {
+	try {
+		const tasks = await prisma.task.update({
+			where: {
+				id: req.body.id,
+			},
+			data: req.body,
+		});
+		res.status(200).send("task updated");
 	} catch (e) {
 		res.status(400).send("task failed");
 	}

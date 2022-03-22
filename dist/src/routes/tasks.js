@@ -126,8 +126,32 @@ tasks.post("/tasks", function (req, res) { return __awaiter(void 0, void 0, void
         }
     });
 }); });
-tasks.delete("/tasks", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+tasks.patch("/tasks", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var tasks_4, e_4;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                _a.trys.push([0, 2, , 3]);
+                return [4 /*yield*/, prisma.task.update({
+                        where: {
+                            id: req.body.id,
+                        },
+                        data: req.body,
+                    })];
+            case 1:
+                tasks_4 = _a.sent();
+                res.status(200).send("task updated");
+                return [3 /*break*/, 3];
+            case 2:
+                e_4 = _a.sent();
+                res.status(400).send("task failed");
+                return [3 /*break*/, 3];
+            case 3: return [2 /*return*/];
+        }
+    });
+}); });
+tasks.delete("/tasks", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var tasks_5, e_5;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -138,11 +162,11 @@ tasks.delete("/tasks", function (req, res) { return __awaiter(void 0, void 0, vo
                         },
                     })];
             case 1:
-                tasks_4 = _a.sent();
+                tasks_5 = _a.sent();
                 res.status(200).send("task deleted");
                 return [3 /*break*/, 3];
             case 2:
-                e_4 = _a.sent();
+                e_5 = _a.sent();
                 res.status(400).send("task failed");
                 return [3 /*break*/, 3];
             case 3: return [2 /*return*/];
