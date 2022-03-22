@@ -47,4 +47,5 @@ model Task {
   content   String?
   author    User     @relation(fields: [authorId], references: [id])
   authorId  Int
+  completed Boolean @default(false)
 }
