@@ -13,5 +13,5 @@ app.use(body_parser_1.default.json());
 // Routes
 app.use(routes_1.default);
 app.listen(process.env.PORT || 8080, function () {
-    console.log("anki-server listening at http://localhost:" + (process.env.PORT || 8080));
+    console.log("anki-server listening at http://localhost:".concat(process.env.PORT || 8080));
 });

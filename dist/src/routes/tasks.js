@@ -42,10 +42,30 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var express_promise_router_1 = __importDefault(require("express-promise-router"));
 var client_1 = require("@prisma/client");
 var luxon_1 = require("luxon");
+var active_win_1 = __importDefault(require("active-win"));
 var prisma = new client_1.PrismaClient();
 var tasks = (0, express_promise_router_1.default)();
+tasks.get("/current-desktop-window", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var activeWin, e_1;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                _a.trys.push([0, 2, , 3]);
+                return [4 /*yield*/, (0, active_win_1.default)()];
+            case 1:
+                activeWin = _a.sent();
+                res.json(activeWin);
+                return [3 /*break*/, 3];
+            case 2:
+                e_1 = _a.sent();
+                res.json(e_1);
+                return [3 /*break*/, 3];
+            case 3: return [2 /*return*/];
+        }
+    });
+}); });
 tasks.get("/tasks-completed-today", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var startOfDay, tasks_1, e_1;
+    var startOfDay, tasks_1, e_2;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -75,15 +95,15 @@ tasks.get("/tasks-completed-today", function (req, res) { return __awaiter(void 
                 res.json(tasks_1);
                 return [3 /*break*/, 4];
             case 3:
-                e_1 = _a.sent();
-                res.json(e_1);
+                e_2 = _a.sent();
+                res.json(e_2);
                 return [3 /*break*/, 4];
             case 4: return [2 /*return*/];
         }
     });
 }); });
 tasks.get("/backlog", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var tasks_2, e_2;
+    var tasks_2, e_3;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -98,15 +118,15 @@ tasks.get("/backlog", function (req, res) { return __awaiter(void 0, void 0, voi
                 res.json(tasks_2);
                 return [3 /*break*/, 3];
             case 2:
-                e_2 = _a.sent();
-                res.json(e_2);
+                e_3 = _a.sent();
+                res.json(e_3);
                 return [3 /*break*/, 3];
             case 3: return [2 /*return*/];
         }
     });
 }); });
 tasks.post("/tasks", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var tasks_3, e_3;
+    var tasks_3, e_4;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -119,7 +139,7 @@ tasks.post("/tasks", function (req, res) { return __awaiter(void 0, void 0, void
                 res.status(200).send("task created");
                 return [3 /*break*/, 3];
             case 2:
-                e_3 = _a.sent();
+                e_4 = _a.sent();
                 res.status(400).send("task failed");
                 return [3 /*break*/, 3];
             case 3: return [2 /*return*/];
@@ -127,7 +147,7 @@ tasks.post("/tasks", function (req, res) { return __awaiter(void 0, void 0, void
     });
 }); });
 tasks.patch("/tasks", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var tasks_4, e_4;
+    var tasks_4, e_5;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -143,7 +163,7 @@ tasks.patch("/tasks", function (req, res) { return __awaiter(void 0, void 0, voi
                 res.status(200).send("task updated");
                 return [3 /*break*/, 3];
             case 2:
-                e_4 = _a.sent();
+                e_5 = _a.sent();
                 res.status(400).send("task failed");
                 return [3 /*break*/, 3];
             case 3: return [2 /*return*/];
@@ -151,7 +171,7 @@ tasks.patch("/tasks", function (req, res) { return __awaiter(void 0, void 0, voi
     });
 }); });
 tasks.delete("/tasks", function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var tasks_5, e_5;
+    var tasks_5, e_6;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -166,7 +186,7 @@ tasks.delete("/tasks", function (req, res) { return __awaiter(void 0, void 0, vo
                 res.status(200).send("task deleted");
                 return [3 /*break*/, 3];
             case 2:
-                e_5 = _a.sent();
+                e_6 = _a.sent();
                 res.status(400).send("task failed");
                 return [3 /*break*/, 3];
             case 3: return [2 /*return*/];

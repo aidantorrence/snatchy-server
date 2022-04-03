@@ -1,10 +1,23 @@
 import Router from "express-promise-router";
 import { PrismaClient } from "@prisma/client";
 import { DateTime } from "luxon";
+import activeWindow from 'active-win';
 
 const prisma = new PrismaClient();
 
 const tasks = Router();
+
+
+
+tasks.get("/current-desktop-window", async (req, res) => {
+	try {
+		const activeWin = await activeWindow();
+		res.json(activeWin);
+	} catch (e) {
+		res.json(e);
+	}
+});
+
 tasks.get("/tasks-completed-today", async (req, res) => {
 	const startOfDay = DateTime.now().startOf("day").toUTC().toISO();
 	try {
