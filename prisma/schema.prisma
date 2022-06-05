@@ -10,42 +10,32 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Post {
-  id               Int       @id @default(autoincrement())
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
-  title            String    @db.VarChar()
-  solution         String
-  topic            String    @default("")
-  reviewDate       DateTime  @default(now())
-  daysToAdd        Int       @default(0)
-  published        Boolean   @default(false)
-  author           User      @relation(fields: [authorId], references: [id])
-  authorId         Int
-  lastReviewedDate DateTime?
-  enabled          Boolean   @default(true)
-}
-
-model Topic {
-  id      Int     @id @default(autoincrement())
-  name    String  @unique
-  enabled Boolean @default(true)
+model Listing {
+  id             Int      @id @default(autoincrement())
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  name           String   @db.VarChar()
+  price          String
+  images         String[]
+  condition      String
+  boxCondition   String
+  canTrade       Boolean
+  size           String
+  description    String
+  listingDefects String[]
+  published      Boolean  @default(false)
+  owner          User     @relation(fields: [ownerId], references: [id])
+  ownerId        Int
+  sold           Boolean  @default(false)
 }
 
 model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String?
-  posts Post[]
-  tasks Task[]
-}
-
-model Task {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  content   String?
-  author    User     @relation(fields: [authorId], references: [id])
-  authorId  Int
-  completed Boolean @default(false)
+  id          Int       @id @default(autoincrement())
+  email       String    @unique
+  firstName   String?
+  lastName    String?
+  sellerName  String?   @unique
+  userImage   String?
+  description String?
+  listings    Listing[]
 }

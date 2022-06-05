@@ -1,14 +1,14 @@
 
    
 import { Router } from 'express'
-import ankis from './ankis'
-import tasks from './tasks'
+import listings from './listings'
+import users from './users'
 
 
 const router = Router()
 
-router.use(ankis)
-router.use(tasks)
+router.use(listings)
+router.use(users)
 
 
 export default router

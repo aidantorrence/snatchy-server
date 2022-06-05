@@ -13,5 +13,5 @@ app.use(bodyParser.json());
 app.use(router);
 
 app.listen(process.env.PORT || 8080, () => {
-	console.log(`anki-server listening at http://localhost:${process.env.PORT || 8080}`);
+	console.log(`instaheat-server listening at http://localhost:${process.env.PORT || 8080}`);
 });
