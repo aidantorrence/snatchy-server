@@ -25,6 +25,9 @@ listings.get("/listing/:id", async (req, res) => {
       where: {
         id: parseInt(id, 10),
       },
+      include: {
+        owner: true,
+      },
     });
     res.json(listing);
   } catch (e) {
