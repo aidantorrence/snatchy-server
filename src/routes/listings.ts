@@ -14,6 +14,7 @@ listings.get("/listings", async (req, res) => {
     });
     res.json(listings);
   } catch (e) {
+		console.log(e)
     res.json(e);
   }
 });
@@ -31,6 +32,7 @@ listings.get("/listing/:id", async (req, res) => {
     });
     res.json(listing);
   } catch (e) {
+		console.log(e)
     res.json(e);
   }
 });
@@ -45,17 +47,19 @@ listings.get("/listings-completed-today", async (req, res) => {
         `;
     res.json(listing);
   } catch (e) {
+		console.log(e)
     res.json(e);
   }
 });
 
 listings.post("/listing", async (req, res) => {
   try {
-    const listings = await prisma.listing.create({
+    const listing = await prisma.listing.create({
       data: req.body,
     });
-    res.status(200).send("listing created");
+    res.status(200).send(listing);
   } catch (e) {
+		console.log(e)
     res.status(400).send("listing failed");
   }
 });
@@ -63,14 +67,30 @@ listings.post("/listing", async (req, res) => {
 listings.patch("/listing", async (req, res) => {
   const { id } = req.body;
   try {
-    const listings = await prisma.listing.update({
+    const listing = await prisma.listing.update({
       where: {
         id,
       },
       data: req.body,
     });
-    res.status(200).send("listing created");
+    res.status(200).send(listing);
   } catch (e) {
+		console.log(e)
+    res.status(400).send("listing failed");
+  }
+});
+
+listings.delete("/listing", async (req, res) => {
+  const { id } = req.body;
+  try {
+    const listing = await prisma.listing.delete({
+      where: {
+        id,
+      },
+    });
+    res.status(200).send(listing);
+  } catch (e) {
+		console.log(e)
     res.status(400).send("listing failed");
   }
 });
@@ -90,6 +110,7 @@ listings.get("/listing-to-review", async (req, res) => {
     // WHERE ("updatedAt" < NOW() - INTERVAL '6 hours' OR EXTRACT (epoch from ("updatedAt" - "createdAt")) < 60)
     res.json(listing);
   } catch (e) {
+		console.log(e)
     res.json(e);
   }
 });
@@ -103,6 +124,7 @@ listings.patch("/listing", async (req, res) => {
     });
     res.json(listing);
   } catch (e) {
+		console.log(e)
     res.json(e);
   }
 });
@@ -129,6 +151,7 @@ listings.delete("/listing", async (req, res) => {
     });
     res.json(listing);
   } catch (e) {
+		console.log(e)
     res.json(e);
   }
 });
