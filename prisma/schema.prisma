@@ -11,7 +11,7 @@ datasource db {
 }
 
 model Listing {
-  id             Int      @id @default(autoincrement()) 
+  id             Int      @id @default(autoincrement())
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
   name           String   @db.VarChar()
@@ -19,6 +19,7 @@ model Listing {
   images         String[]
   condition      String
   boxCondition   String
+  gender         String
   canTrade       Boolean
   size           String
   description    String

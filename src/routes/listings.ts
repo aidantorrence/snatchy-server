@@ -60,6 +60,21 @@ listings.post("/listing", async (req, res) => {
   }
 });
 
+listings.patch("/listing", async (req, res) => {
+  const { id } = req.body;
+  try {
+    const listings = await prisma.listing.update({
+      where: {
+        id,
+      },
+      data: req.body,
+    });
+    res.status(200).send("listing created");
+  } catch (e) {
+    res.status(400).send("listing failed");
+  }
+});
+
 listings.get("/listing-to-review", async (req, res) => {
   try {
     const listing = await prisma.$queryRaw`
