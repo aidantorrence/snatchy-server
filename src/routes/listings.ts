@@ -69,7 +69,7 @@ listings.patch("/listing", async (req, res) => {
   try {
     const listing = await prisma.listing.update({
       where: {
-        id,
+        id: parseInt(id, 10),
       },
       data: req.body,
     });
@@ -85,7 +85,7 @@ listings.delete("/listing", async (req, res) => {
   try {
     const listing = await prisma.listing.delete({
       where: {
-        id,
+        id: parseInt(id, 10),
       },
     });
     res.status(200).send(listing);
