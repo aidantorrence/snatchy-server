@@ -28,13 +28,19 @@ model Listing {
 }
 
 model User {
-  id          Int       @id @default(autoincrement())
-  email       String    @unique
-  firstName   String?
-  lastName    String?
-  sellerName  String?   @unique
-  userImage   String?
-  description String?
-  uid         String    @db.VarChar @unique
-  listings    Listing[]
+  id              Int       @id @default(autoincrement())
+  email           String    @unique
+  firstName       String?
+  lastName        String?
+  sellerName      String?   @unique
+  userImage       String?
+  description     String?
+  uid             String    @unique @db.VarChar
+  listings        Listing[]
+  address         String?
+  optionalAddress String?
+  city            String?
+  state           String?
+  zipcode         String?
+  country         String?
 }
