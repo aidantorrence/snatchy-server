@@ -21,10 +21,10 @@ model Listing {
   description    String
   listingDefects String[]
   published      Boolean  @default(false)
-  ownerId        Int
+  ownerId        String
   sold           Boolean  @default(false)
   gender         String
-  owner          User     @relation(fields: [ownerId], references: [id])
+  owner          User     @relation(fields: [ownerId], references: [uid])
 }
 
 model User {
@@ -35,6 +35,6 @@ model User {
   sellerName  String?   @unique
   userImage   String?
   description String?
-  uid         String    @db.VarChar
+  uid         String    @db.VarChar @unique
   listings    Listing[]
 }

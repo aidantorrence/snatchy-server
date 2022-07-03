@@ -5,11 +5,11 @@ const prisma = new PrismaClient();
 
 const users = Router();
 
-users.get("/user/:id", async (req, res) => {
+users.get("/user/:uid", async (req, res) => {
   try {
     const user = await prisma.user.findUnique({
       where: {
-        id: parseInt(req.params.id, 10),
+        uid: req.params.uid,
       },
       include: {
         listings: true,
