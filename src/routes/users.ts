@@ -37,4 +37,16 @@ users.patch("/user", async (req, res) => {
   }
 });
 
+users.post("/user", async (req, res) => {
+  try {
+    const user = await prisma.user.create({
+      data: req.body,
+    });
+    res.status(200).send(user);
+  } catch (e) {
+		console.log(e)
+    res.status(400).send("user failed");
+  }
+});
+
 export default users;
