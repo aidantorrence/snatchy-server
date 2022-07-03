@@ -22,11 +22,11 @@ users.get("/user/:uid", async (req, res) => {
 });
 
 users.patch("/user", async (req, res) => {
-  const { id } = req.body;
+  const { uid } = req.body;
   try {
     const listing = await prisma.user.update({
       where: {
-        id: parseInt(id, 10),
+        uid,
       },
       data: req.body,
     });
