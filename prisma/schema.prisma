@@ -43,4 +43,5 @@ model User {
   state           String?
   zipcode         String?
   country         String?
+  customerId      String?
 }
