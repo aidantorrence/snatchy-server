@@ -1,17 +1,20 @@
+import { PrismaClient } from "@prisma/client";
 import Router from "express-promise-router";
 import Stripe from "stripe";
 
 const s = Router();
+const prisma = new PrismaClient();
 
 const stripe = new Stripe(process.env.SECRET_KEY as string, {
   apiVersion: "2020-08-27",
 });
 
 const calculateOrderAmount = (items: any) => {
-  // Replace this constant with a calculation of the order's amount
-  // Calculate the order total on the server to prevent
-  // people from directly manipulating the amount on the client
-  return 1400;
+  const subtotal = items.reduce((acc: number, item: any) => {
+    return acc + item.price;
+  }, 0);
+  const total = subtotal * 1.0725 + 20;
+  return total;
 };
 
 s.post("/create-payment-intent", async (req: any, res: any) => {
@@ -32,6 +35,12 @@ s.post("/create-payment-intent", async (req: any, res: any) => {
 });
 
 s.post("/payment-sheet", async (req, res) => {
+  const { listingIds } = req.body;
+  const listings = await prisma.listing.findMany({
+    where: {
+      id: { in: listingIds },
+    },
+  });
   let customerId;
   if (req.body.customerId) {
     customerId = req.body.customerId;
@@ -40,13 +49,14 @@ s.post("/payment-sheet", async (req, res) => {
     customerId = customer.id;
   }
 
+  const paymentAmount = calculateOrderAmount(listings);
   // Use an existing Customer ID if this is a returning customer.
   const ephemeralKey = await stripe.ephemeralKeys.create(
     { customer: customerId },
     { apiVersion: "2020-08-27" }
   );
   const paymentIntent = await stripe.paymentIntents.create({
-    amount: 1099,
+    amount: Math.round(paymentAmount * 100),
     currency: "usd",
     customer: customerId,
     automatic_payment_methods: {

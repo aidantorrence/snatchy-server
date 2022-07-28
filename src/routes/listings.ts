@@ -30,9 +30,9 @@ listings.get("/listing/:id", async (req, res) => {
         owner: true,
       },
     });
+    console.log(listing);
     res.json(listing);
   } catch (e) {
-		console.log(e)
     res.json(e);
   }
 });
