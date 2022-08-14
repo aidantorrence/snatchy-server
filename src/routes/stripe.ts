@@ -30,13 +30,17 @@ s.post("/create-account", async (req, res) => {
   });
   const accountLink = await stripe.accountLinks.create({
     account: account.id,
-    // return_url: "exp://ya-b6f.aidantorrence.instaheat.exp.direct:80",
+    return_url: "https://instaheat-server.herokuapp.com/redirect",
     type: "account_onboarding",
   });
   res.send({
     accountLink: accountLink.url,
     accountId: account.id,
   });
+});
+
+s.get("/redirect", async (req, res) => {
+  res.status(301).redirect("https://www.google.com");
 });
 
 s.post("/create-payment-intent", async (req: any, res: any) => {
