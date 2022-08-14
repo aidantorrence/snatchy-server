@@ -30,7 +30,7 @@ s.post("/create-account", async (req, res) => {
   });
   const accountLink = await stripe.accountLinks.create({
     account: account.id,
-    return_url: "exp://ya-b6f.aidantorrence.instaheat.exp.direct:80",
+    // return_url: "exp://ya-b6f.aidantorrence.instaheat.exp.direct:80",
     type: "account_onboarding",
   });
   res.send({
