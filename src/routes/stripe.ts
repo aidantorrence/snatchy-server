@@ -40,12 +40,20 @@ s.post("/create-account", async (req, res) => {
   });
 });
 
-s.get("/account-status", async (req, res) => {
-  const { accountId } = req.query as { accountId: string };
+s.get("/account-status/:accountId", async (req, res) => {
+  const { accountId } = req.params;
   if (!accountId) {
     res.status(400).send("accountId not provided");
   }
   const account = await stripe.accounts.retrieve(accountId);
+  const data = await prisma.user.update({
+    where: {
+      accountId,
+    },
+    data: {
+      chargesEnabled: account.charges_enabled,
+    },
+  });
   res.send(account);
 });
 
