@@ -40,8 +40,19 @@ s.post("/create-account", async (req, res) => {
   });
 });
 
+s.get("/account-status", async (req, res) => {
+  const { accountId } = req.query as { accountId: string };
+  if (!accountId) {
+    res.status(400).send("accountId not provided");
+  }
+  const account = await stripe.accounts.retrieve(accountId);
+  res.send(account);
+});
+
 s.get("/redirect", async (req, res) => {
-  res.status(301).redirect("exp://ya-b6f.aidantorrence.instaheat.exp.direct:80");
+  res
+    .status(301)
+    .redirect("exp://ya-b6f.aidantorrence.instaheat.exp.direct:80");
 });
 
 s.post("/create-payment-intent", async (req: any, res: any) => {
