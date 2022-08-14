@@ -24,16 +24,16 @@ users.get("/user/:uid", async (req, res) => {
 users.patch("/user", async (req, res) => {
   const { uid } = req.body;
   try {
-    const listing = await prisma.user.update({
+    const data = await prisma.user.update({
       where: {
         uid,
       },
       data: req.body,
     });
-    res.status(200).send(listing);
+    res.status(200).send(data);
   } catch (e) {
     console.log(e);
-    res.status(400).send("listing failed");
+    res.status(400).send("user update failed");
   }
 });
 

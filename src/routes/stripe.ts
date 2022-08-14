@@ -17,6 +17,29 @@ const calculateOrderAmount = (items: any) => {
   return total;
 };
 
+s.post("/create-account", async (req, res) => {
+  const { uid } = req.body;
+  const account = await stripe.accounts.create({ type: "express" });
+  const data = await prisma.user.update({
+    where: {
+      uid,
+    },
+    data: {
+      accountId: account.id,
+    }
+  });
+  const accountLink = await stripe.accountLinks.create({
+    account: account.id,
+    refresh_url: "https://example.com/reauth",
+    return_url: "https://example.com/return",
+    type: "account_onboarding",
+  });
+  res.send({
+    accountLink: accountLink.url,
+    accountId: account.id,
+  });
+});
+
 s.post("/create-payment-intent", async (req: any, res: any) => {
   const { items } = req.body;
 

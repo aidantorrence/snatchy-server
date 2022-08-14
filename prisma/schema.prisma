@@ -36,6 +36,7 @@ model User {
   userImage       String?
   description     String?
   uid             String    @unique @db.VarChar
+  accountId       String?
   listings        Listing[]
   address         String?
   optionalAddress String?
