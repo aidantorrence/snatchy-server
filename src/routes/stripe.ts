@@ -30,6 +30,7 @@ s.post("/create-account", async (req, res) => {
   });
   const accountLink = await stripe.accountLinks.create({
     account: account.id,
+    refresh_url: "https://instaheat-server.herokuapp.com/redirect",
     return_url: "https://instaheat-server.herokuapp.com/redirect",
     type: "account_onboarding",
   });
@@ -40,7 +41,7 @@ s.post("/create-account", async (req, res) => {
 });
 
 s.get("/redirect", async (req, res) => {
-  res.status(301).redirect("https://www.google.com");
+  res.status(301).redirect("exp://ya-b6f.aidantorrence.instaheat.exp.direct:80");
 });
 
 s.post("/create-payment-intent", async (req: any, res: any) => {
