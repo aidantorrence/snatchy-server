@@ -14,7 +14,7 @@ const calculateOrderAmount = (items: any) => {
     return acc + item.price;
   }, 0);
   const total = subtotal * 1.0725 + 20;
-  return total;
+  return Math.round(total * 100);
 };
 
 s.post("/create-account", async (req, res) => {
@@ -114,11 +114,15 @@ s.post("/payment-sheet", async (req, res) => {
     { apiVersion: "2020-08-27" }
   );
   const paymentIntent = await stripe.paymentIntents.create({
-    amount: Math.round(paymentAmount * 100),
+    amount: paymentAmount,
     currency: "usd",
     customer: customerId,
     automatic_payment_methods: {
       enabled: true,
+    },
+    application_fee_amount: paymentAmount * .07,
+    transfer_data: {
+      destination: req.body.accountId,
     },
   });
 
