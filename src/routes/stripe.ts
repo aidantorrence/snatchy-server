@@ -97,6 +97,9 @@ s.post("/create-payment-intent", async (req: any, res: any) => {
 
 s.post("/payment-sheet", async (req, res) => {
   const { listingIds } = req.body;
+  if (!listingIds) {
+    res.status(400).send("listingIds not provided");
+  }
   const listings = await prisma.listing.findMany({
     where: {
       id: { in: listingIds },
@@ -123,7 +126,7 @@ s.post("/payment-sheet", async (req, res) => {
     automatic_payment_methods: {
       enabled: true,
     },
-    application_fee_amount: paymentAmount * 0.07,
+    application_fee_amount: Math.round(paymentAmount * 0.07),
     transfer_data: {
       destination: req.body.accountId,
     },
