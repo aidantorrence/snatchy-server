@@ -19,6 +19,18 @@ const calculateOrderAmount = (items: any) => {
 
 s.post("/create-account", async (req, res) => {
   const { uid } = req.body;
+  const user = await prisma.user.findUnique({
+    where: {
+      uid,
+    },
+  });
+  if (user?.accountId) {
+    res.send({
+      accountLink: undefined,
+      accountId: user.accountId,
+    });
+    return;
+  }
   const account = await stripe.accounts.create({ type: "express" });
   const data = await prisma.user.update({
     where: {
