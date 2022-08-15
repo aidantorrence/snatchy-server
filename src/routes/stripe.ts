@@ -19,36 +19,39 @@ const calculateOrderAmount = (items: any) => {
 
 s.post("/create-account", async (req, res) => {
   const { uid } = req.body;
+  let account: any;
   const user = await prisma.user.findUnique({
     where: {
       uid,
     },
   });
-  if (user?.accountId) {
+  if (user?.chargesEnabled) {
     res.send({
       accountLink: undefined,
-      accountId: user.accountId,
+      accountId: user?.accountId,
     });
     return;
   }
-  const account = await stripe.accounts.create({ type: "express" });
-  const data = await prisma.user.update({
-    where: {
-      uid,
-    },
-    data: {
-      accountId: account.id,
-    },
-  });
+  if (!user?.accountId) {
+    account = await stripe.accounts.create({ type: "express" });
+    const data = await prisma.user.update({
+      where: {
+        uid,
+      },
+      data: {
+        accountId: account.id,
+      },
+    });
+  }
   const accountLink = await stripe.accountLinks.create({
-    account: account.id,
+    account: user?.accountId || account?.id,
     refresh_url: "https://instaheat-server.herokuapp.com/redirect",
     return_url: "https://instaheat-server.herokuapp.com/redirect",
     type: "account_onboarding",
   });
   res.send({
     accountLink: accountLink.url,
-    accountId: account.id,
+    accountId: user?.accountId || account?.id,
   });
 });
 
@@ -120,7 +123,7 @@ s.post("/payment-sheet", async (req, res) => {
     automatic_payment_methods: {
       enabled: true,
     },
-    application_fee_amount: paymentAmount * .07,
+    application_fee_amount: paymentAmount * 0.07,
     transfer_data: {
       destination: req.body.accountId,
     },
