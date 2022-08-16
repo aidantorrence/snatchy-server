@@ -123,6 +123,7 @@ s.post("/payment-sheet", async (req, res) => {
     amount: paymentAmount,
     currency: "usd",
     customer: customerId,
+    setup_future_usage: 'off_session',
     automatic_payment_methods: {
       enabled: true,
     },
