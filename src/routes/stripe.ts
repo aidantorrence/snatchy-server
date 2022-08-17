@@ -9,7 +9,7 @@ const stripe = new Stripe(process.env.SECRET_KEY as string, {
   apiVersion: "2020-08-27",
 });
 
-const calculateOrderAmount = (items: any) => {
+export const calculateOrderAmount = (items: any) => {
   const subtotal = items.reduce((acc: number, item: any) => {
     return acc + item.price;
   }, 0);
@@ -115,6 +115,11 @@ s.post("/payment-sheet", async (req, res) => {
 
   const paymentAmount = calculateOrderAmount(listings);
   // Use an existing Customer ID if this is a returning customer.
+
+  const paymentMethods = await stripe.paymentMethods.list({
+    customer: customerId,
+    type: "card",
+  });
   const ephemeralKey = await stripe.ephemeralKeys.create(
     { customer: customerId },
     { apiVersion: "2020-08-27" }
@@ -123,7 +128,8 @@ s.post("/payment-sheet", async (req, res) => {
     amount: paymentAmount,
     currency: "usd",
     customer: customerId,
-    setup_future_usage: 'off_session',
+    payment_method: paymentMethods.data.length ? paymentMethods.data[0].id : undefined,
+    // setup_future_usage: "off_session",
     automatic_payment_methods: {
       enabled: true,
     },
