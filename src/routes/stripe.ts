@@ -128,7 +128,9 @@ s.post("/payment-sheet", async (req, res) => {
     amount: paymentAmount,
     currency: "usd",
     customer: customerId,
-    payment_method: paymentMethods.data.length ? paymentMethods.data[0].id : undefined,
+    payment_method: paymentMethods.data.length
+      ? paymentMethods.data[0].id
+      : undefined,
     // setup_future_usage: "off_session",
     automatic_payment_methods: {
       enabled: true,
@@ -146,4 +148,40 @@ s.post("/payment-sheet", async (req, res) => {
   });
 });
 
+s.post("/setup-payment", async (req, res) => {
+  let customerId;
+  if (req.body.customerId) {
+    customerId = req.body.customerId;
+  } else {
+    const customer = await stripe.customers.create();
+    customerId = customer.id;
+  }
+
+  const paymentMethods = await stripe.paymentMethods.list({
+    customer: customerId,
+    type: "card",
+  });
+
+  if (paymentMethods.data.length) {
+    res.json({
+      paymentMethod: paymentMethods.data[0].id,
+    });
+    return;
+  }
+
+  const ephemeralKey = await stripe.ephemeralKeys.create(
+    { customer: customerId },
+    { apiVersion: "2020-08-27" }
+  );
+
+  const setupIntent = await stripe.setupIntents.create({
+    customer: customerId,
+  });
+
+  res.json({
+    setupIntent: setupIntent.client_secret,
+    ephemeralKey: ephemeralKey.secret,
+    customer: customerId,
+  });
+});
 export default s;

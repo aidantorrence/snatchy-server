@@ -25,6 +25,7 @@ model Listing {
   sold           Boolean  @default(false)
   gender         String
   owner          User     @relation(fields: [ownerId], references: [uid])
+  offers         Offer[]
 }
 
 model User {
@@ -46,4 +47,22 @@ model User {
   zipcode         String?
   country         String?
   customerId      String?
+  paymentMethodId String?
+  Buyer           Offer[]   @relation(name: "buyer")
+  Seller          Offer[]   @relation(name: "seller")
+}
+
+model Offer {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  listingId Int
+  listing   Listing  @relation(fields: [listingId], references: [id])
+  buyerId   String
+  Buyer     User     @relation(name: "buyer", fields: [buyerId], references: [uid])
+  sellerId  String
+  Seller    User     @relation(name: "seller", fields: [sellerId], references: [uid])
+  price     String
+  accepted  Boolean  @default(false)
+  cancelled Boolean  @default(false)
 }

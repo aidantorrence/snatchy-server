@@ -10,7 +10,7 @@ sendGrid.post("/orderConfirmation", async (req, res) => {
     const messages = [
       {
         to: "aidan.torrence@gmail.com", // Change to your currentUser.email
-        from: "aidan.torrence@gmail.com", // Change to your verified sender
+        from: "instaheat@instaheat.co", // Change to your verified sender
         dynamicTemplateData: {
           firstName: currentUser.firstName,
           lastName: currentUser.lastName,
@@ -30,16 +30,15 @@ sendGrid.post("/orderConfirmation", async (req, res) => {
       },
       {
         to: "aidan.torrence@gmail.com", // Change to listing.owner.email
-        from: "aidan.torrence@gmail.com", // Change to your verified sender
+        from: "instaheat@instaheat.co", // Change to your verified sender
         dynamicTemplateData: {
           firstName: listing.owner.firstName,
           buyerFirstName: currentUser.firstName,
           buyerLastName: currentUser.lastName,
-          address: currentUser.address,
-          optionalAddress: currentUser.optionalAddress,
-          city: currentUser.city,
-          state: currentUser.state,
-          zipcode: currentUser.zipcode,
+          address: '417 Juniper Leaf Way',
+          city: 'Greer',
+          state: 'SC',
+          zipcode: '29651',
           url: listing.images[0],
           name: listing.name,
           price: listing.price,

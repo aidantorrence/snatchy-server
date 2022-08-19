@@ -12,7 +12,11 @@ users.get("/user/:uid", async (req, res) => {
         uid: req.params.uid,
       },
       include: {
-        listings: true,
+        listings: {
+          where: {
+            sold: false,
+          },
+        },
       },
     });
     res.json(user);
@@ -44,7 +48,7 @@ users.post("/user", async (req, res) => {
     });
     res.status(200).send(user);
   } catch (e) {
-		console.log(e)
+    console.log(e);
     res.status(400).send("user failed");
   }
 });

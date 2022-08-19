@@ -8,13 +8,16 @@ const listings = Router();
 listings.get("/listings", async (req, res) => {
   try {
     const listings = await prisma.listing.findMany({
+      where: {
+        sold: false,
+      },
       include: {
         owner: true, // Return all fields
       },
     });
     res.json(listings);
   } catch (e) {
-		console.log(e)
+    console.log(e);
     res.json(e);
   }
 });
@@ -47,7 +50,7 @@ listings.get("/listings-completed-today", async (req, res) => {
         `;
     res.json(listing);
   } catch (e) {
-		console.log(e)
+    console.log(e);
     res.json(e);
   }
 });
@@ -59,7 +62,7 @@ listings.post("/listing", async (req, res) => {
     });
     res.status(200).send(listing);
   } catch (e) {
-		console.log(e)
+    console.log(e);
     res.status(400).send("listing failed");
   }
 });
@@ -75,7 +78,7 @@ listings.patch("/listing", async (req, res) => {
     });
     res.status(200).send(listing);
   } catch (e) {
-		console.log(e)
+    console.log(e);
     res.status(400).send("listing failed");
   }
 });
@@ -90,7 +93,7 @@ listings.delete("/listing", async (req, res) => {
     });
     res.status(200).send(listing);
   } catch (e) {
-		console.log(e)
+    console.log(e);
     res.status(400).send("listing failed");
   }
 });
@@ -110,7 +113,7 @@ listings.get("/listing-to-review", async (req, res) => {
     // WHERE ("updatedAt" < NOW() - INTERVAL '6 hours' OR EXTRACT (epoch from ("updatedAt" - "createdAt")) < 60)
     res.json(listing);
   } catch (e) {
-		console.log(e)
+    console.log(e);
     res.json(e);
   }
 });
@@ -124,7 +127,7 @@ listings.patch("/listing", async (req, res) => {
     });
     res.json(listing);
   } catch (e) {
-		console.log(e)
+    console.log(e);
     res.json(e);
   }
 });
@@ -151,7 +154,7 @@ listings.delete("/listing", async (req, res) => {
     });
     res.json(listing);
   } catch (e) {
-		console.log(e)
+    console.log(e);
     res.json(e);
   }
 });
