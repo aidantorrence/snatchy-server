@@ -184,4 +184,54 @@ s.post("/setup-payment", async (req, res) => {
     customer: customerId,
   });
 });
+
+s.post("/charge-offer", async (req, res) => {
+  const offer = req.body;
+
+  const listing = await prisma.listing.findUnique({
+    where: {
+      id: offer.listingId,
+    },
+  });
+
+  if (listing?.sold) {
+    res.status(400).send("listing already sold");
+    return;
+  }
+  
+  const buyer = await prisma.user.findUnique({
+    where: {
+      uid: offer.buyerId,
+    },
+  });
+
+  const seller = await prisma.user.findUnique({
+    where: {
+      uid: offer.sellerId,
+    },
+  });
+
+  const paymentMethods = await stripe.paymentMethods.list({
+    customer: buyer?.customerId || undefined,
+    type: "card",
+  });
+
+  const paymentAmount = calculateOrderAmount([offer]);
+  const paymentIntent = await stripe.paymentIntents.create({
+    customer: buyer?.customerId || undefined,
+    amount: paymentAmount,
+    currency: "usd",
+    payment_method: paymentMethods.data[0].id,
+    application_fee_amount: Math.round(paymentAmount * 0.07),
+    transfer_data: {
+      destination: seller?.accountId || '',
+    },
+    off_session: true,
+    confirm: true,
+  });
+  res.send({
+    paymentIntent: paymentIntent.client_secret,
+  });
+});
+
 export default s;

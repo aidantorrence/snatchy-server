@@ -3,7 +3,7 @@ import sgMail from "@sendgrid/mail";
 import { calculateOrderAmount } from "./stripe";
 const sendGrid = Router();
 
-sendGrid.post("/orderConfirmation", async (req, res) => {
+sendGrid.post("/order-confirmation", async (req, res) => {
   const { currentUser, listing } = req.body;
   try {
     sgMail.setApiKey(process.env.SENDGRID_API_KEY || "");
@@ -47,6 +47,34 @@ sendGrid.post("/orderConfirmation", async (req, res) => {
         },
         templateId: "d-20a5a6310e284d97b1f024b6f8c9c7e6",
       },
+    ];
+    await sgMail.send(messages);
+    res.status(200).send("success");
+  } catch (e) {
+    console.log(e);
+    res.status(400).send("failed");
+  }
+});
+sendGrid.post("/offer-created", async (req, res) => {
+  const { listing, price } = req.body;
+  listing.price = price;
+  try {
+    sgMail.setApiKey(process.env.SENDGRID_API_KEY || "");
+    const messages = [
+      {
+        to: "aidan.torrence@gmail.com", // Change to your currentUser.email
+        from: "instaheat@instaheat.co", // Change to your verified sender
+        dynamicTemplateData: {
+          url: listing.images[0],
+          firstName: listing.owner.firstName,
+          name: listing.name,
+          price: listing.price,
+          size: listing.size,
+          total: calculateOrderAmount([listing]),
+          gender: listing.gender[0],
+        },
+        templateId: "d-1eacd4f741b943c7ba2f1c150a540788",
+      }
     ];
     await sgMail.send(messages);
     res.status(200).send("success");
