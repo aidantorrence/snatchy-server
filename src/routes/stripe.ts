@@ -198,7 +198,7 @@ s.post("/charge-offer", async (req, res) => {
     res.status(400).send("listing already sold");
     return;
   }
-  
+
   const buyer = await prisma.user.findUnique({
     where: {
       uid: offer.buyerId,
@@ -224,10 +224,18 @@ s.post("/charge-offer", async (req, res) => {
     payment_method: paymentMethods.data[0].id,
     application_fee_amount: Math.round(paymentAmount * 0.07),
     transfer_data: {
-      destination: seller?.accountId || '',
+      destination: seller?.accountId || "",
     },
     off_session: true,
     confirm: true,
+  });
+  await prisma.listing.update({
+    where: {
+      id: offer.listingId,
+    },
+    data: {
+      sold: true,
+    },
   });
   res.send({
     paymentIntent: paymentIntent.client_secret,

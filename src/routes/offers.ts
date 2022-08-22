@@ -21,32 +21,14 @@ offers.post("/offer", async (req, res) => {
   }
 });
 offers.patch("/offer", async (req, res) => {
-  const { id, accepted, listingId } = req.body;
+  const { id } = req.body;
   try {
-    const listing = await prisma.listing.findUnique({
-      where: {
-        id: listingId,
-      },
-    });
-    if (listing?.sold) {
-      throw new Error("listing already sold");
-    }
     const data = await prisma.offer.update({
       where: {
         id,
       },
       data: req.body,
     });
-    if (accepted) {
-      await prisma.listing.update({
-        where: {
-          id: listingId,
-        },
-        data: {
-          sold: true,
-        },
-      });
-    }
     res.status(200).send(data);
   } catch (e) {
     console.log(e);
@@ -74,6 +56,9 @@ offers.get("/offers/:uid", async (req, res) => {
           where: {
             accepted: false,
             cancelled: false,
+            listing: {
+              sold: false,
+            }
           },
           include: {
             listing: true,
@@ -83,6 +68,9 @@ offers.get("/offers/:uid", async (req, res) => {
           where: {
             accepted: false,
             cancelled: false,
+            listing: {
+              sold: false,
+            }
           },
           include: {
             listing: true,

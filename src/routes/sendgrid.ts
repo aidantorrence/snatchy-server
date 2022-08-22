@@ -2,9 +2,27 @@ import Router from "express-promise-router";
 import sgMail from "@sendgrid/mail";
 import { calculateOrderAmount } from "./stripe";
 const sendGrid = Router();
+import { PrismaClient } from "@prisma/client";
+const prisma = new PrismaClient();
 
 sendGrid.post("/order-confirmation", async (req, res) => {
-  const { currentUser, listing } = req.body;
+  let { currentUser, listing, offer } = req.body;
+
+  // different flow when order is confirmed from offer page
+  if(offer) {
+    currentUser = await prisma.user.findUnique({
+      where: {
+        uid: offer.buyerId, 
+      },
+    });
+    listing = await prisma.listing.findUnique({
+      where: {
+        id: offer.listingId,
+      },
+    });
+    listing.price = offer.price;
+  }
+
   try {
     sgMail.setApiKey(process.env.SENDGRID_API_KEY || "");
     const messages = [
@@ -83,5 +101,41 @@ sendGrid.post("/offer-created", async (req, res) => {
     res.status(400).send("failed");
   }
 });
+
+sendGrid.post("/offer-declined", async (req, res) => {
+  const { offer } = req.body;
+  const { listing } = offer;
+
+  const buyer = await prisma.user.findUnique({
+    where: {
+      uid: offer.buyerId,
+    },
+  });
+
+  try {
+    sgMail.setApiKey(process.env.SENDGRID_API_KEY || "");
+    const messages = [
+      {
+        to: "aidan.torrence@gmail.com", // Change to your currentUser.email
+        from: "instaheat@instaheat.co", // Change to your verified sender
+        dynamicTemplateData: {
+          url: listing.images[0],
+          firstName: buyer?.firstName,
+          name: listing.name,
+          price: offer.price,
+          size: listing.size,
+          gender: listing.gender[0],
+        },
+        templateId: "d-de43c2c14dab4ce58bd88a5753274cb1",
+      }
+    ];
+    await sgMail.send(messages);
+    res.status(200).send("success");
+  } catch (e) {
+    console.log(e);
+    res.status(400).send("failed");
+  }
+});
+
 
 export default sendGrid;
