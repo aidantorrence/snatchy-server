@@ -8,10 +8,10 @@ datasource db {
 }
 
 model Listing {
-  id             Int      @id @default(autoincrement())
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  name           String   @db.VarChar
+  id             Int             @id @default(autoincrement())
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  name           String          @db.VarChar
   price          String
   images         String[]
   condition      String
@@ -20,12 +20,13 @@ model Listing {
   size           String
   description    String
   listingDefects String[]
-  published      Boolean  @default(false)
+  published      Boolean         @default(false)
   ownerId        String
-  sold           Boolean  @default(false)
+  sold           Boolean         @default(false)
   gender         String
-  owner          User     @relation(fields: [ownerId], references: [uid])
+  owner          User            @relation(fields: [ownerId], references: [uid])
   offers         Offer[]
+  tradeListing   Trade_Listing[]
 }
 
 model User {
@@ -48,8 +49,10 @@ model User {
   country         String?
   customerId      String?
   paymentMethodId String?
-  Buyer           Offer[]   @relation(name: "buyer")
-  Seller          Offer[]   @relation(name: "seller")
+  BuyerOffers     Offer[]   @relation(name: "buyer")
+  SellerOffers    Offer[]   @relation(name: "seller")
+  BuyerTrades     Trade[]   @relation(name: "buyer")
+  SellerTrades    Trade[]   @relation(name: "seller")
 }
 
 model Offer {
@@ -65,4 +68,29 @@ model Offer {
   price     String
   accepted  Boolean  @default(false)
   cancelled Boolean  @default(false)
+}
+
+model Trade {
+  id                    Int             @id @default(autoincrement())
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
+  buyerId               String
+  Buyer                 User            @relation(name: "buyer", fields: [buyerId], references: [uid])
+  sellerId              String
+  Seller                User            @relation(name: "seller", fields: [sellerId], references: [uid])
+  additionalFundsBuyer  String
+  additionalFundsSeller String
+  accepted              Boolean         @default(false)
+  cancelled             Boolean         @default(false)
+  tradeListing          Trade_Listing[]
+}
+
+model Trade_Listing {
+  tradeId   Int
+  listingId Int
+  Trade     Trade   @relation(fields: [tradeId], references: [id])
+  Listing   Listing @relation(fields: [listingId], references: [id])
+  direction String
+
+  @@id([tradeId, listingId])
 }
