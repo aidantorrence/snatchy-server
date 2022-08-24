@@ -52,7 +52,7 @@ offers.get("/offers/:uid", async (req, res) => {
         uid: req.params.uid,
       },
       include: {
-        Buyer: {
+        BuyerOffers: {
           where: {
             accepted: false,
             cancelled: false,
@@ -64,7 +64,7 @@ offers.get("/offers/:uid", async (req, res) => {
             listing: true,
           },
         },
-        Seller: {
+        SellerOffers: {
           where: {
             accepted: false,
             cancelled: false,
