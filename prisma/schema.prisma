@@ -26,7 +26,7 @@ model Listing {
   gender         String
   owner          User            @relation(fields: [ownerId], references: [uid])
   offers         Offer[]
-  tradeListing   Trade_Listing[]
+  tradeListings  Trade_Listing[]
 }
 
 model User {
@@ -82,7 +82,7 @@ model Trade {
   additionalFundsSeller String
   accepted              Boolean         @default(false)
   cancelled             Boolean         @default(false)
-  tradeListing          Trade_Listing[]
+  tradeListings         Trade_Listing[]
 }
 
 model Trade_Listing {
@@ -90,7 +90,12 @@ model Trade_Listing {
   listingId Int
   Trade     Trade   @relation(fields: [tradeId], references: [id])
   Listing   Listing @relation(fields: [listingId], references: [id])
-  direction String
+  direction Direction
 
   @@id([tradeId, listingId])
+}
+
+enum Direction {
+  SELLER
+  BUYER
 }
