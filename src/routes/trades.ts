@@ -4,28 +4,35 @@ const prisma = new PrismaClient();
 const trades = Router();
 
 trades.post("/trade", async (req, res) => {
-  const { buyerId, owner, buyerListings, sellerListings, additionalFundsBuyer, additionalFundsSeller } = req.body;
+  const {
+    buyerId,
+    sellerId,
+    buyerListings,
+    sellerListings,
+    additionalFundsBuyer,
+    additionalFundsSeller,
+  } = req.body;
   try {
     const trade = await prisma.trade.create({
       data: {
         buyerId,
-        sellerId: owner.id,
+        sellerId,
         additionalFundsBuyer,
         additionalFundsSeller,
         Buyer: {
           connect: {
-            id: buyerId,
+            uid: buyerId,
           },
         },
         Seller: {
           connect: {
-            id: owner.id,
+            uid: sellerId,
           },
         },
         tradeListings: {
           create: [
             ...buyerListings.map((listing: any) => ({
-              listing: {
+              Listing: {
                 connect: {
                   id: listing.id,
                 },
@@ -33,7 +40,7 @@ trades.post("/trade", async (req, res) => {
               direction: "BUYER",
             })),
             ...sellerListings.map((listing: any) => ({
-              listing: {
+              Listing: {
                 connect: {
                   id: listing.id,
                 },
@@ -51,30 +58,65 @@ trades.post("/trade", async (req, res) => {
   }
 });
 
-// const assignCategories = await prisma.post.create({
-//   data: {
-//     title: 'How to be Bob',
-//     categories: {
-//       create: [
-//         {
-//           assignedBy: 'Bob',
-//           assignedAt: new Date(),
-//           category: {
-//             connect: {
-//               id: 9,
-//             },
-//           },
-//         },
-//         {
-//           assignedBy: 'Bob',
-//           assignedAt: new Date(),
-//           category: {
-//             connect: {
-//               id: 22,
-//             },
-//           },
-//         },
-//       ],
-//     },
-//   },
-// })
+trades.get("/trades/:uid", async (req, res) => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        uid: req.params.uid,
+      },
+      include: {
+        BuyerTrades: {
+          where: {
+            accepted: false,
+            cancelled: false,
+          },
+          include: {
+            tradeListings: {
+              include: {
+                Listing: true,
+              }
+            },
+            Seller: true,
+            Buyer: true,
+          },
+        },
+        SellerTrades: {
+          where: {
+            accepted: false,
+            cancelled: false,
+          },
+          include: {
+            tradeListings: {
+              include: {
+                Listing: true,
+              }
+            },
+            Seller: true,
+            Buyer: true,
+          },
+        },
+      },
+    });
+    res.json(user);
+  } catch (e) {
+    res.json(e);
+  }
+});
+
+trades.patch("/trade", async (req, res) => {
+  const { id } = req.body;
+  try {
+    const data = await prisma.trade.update({
+      where: {
+        id,
+      },
+      data: req.body,
+    });
+    res.status(200).send(data);
+  } catch (e) {
+    console.log(e);
+    res.status(400).send("trade update failed");
+  }
+});
+
+export default trades;

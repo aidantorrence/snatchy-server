@@ -242,4 +242,81 @@ s.post("/charge-offer", async (req, res) => {
   });
 });
 
+s.post("/charge-trade", async (req, res) => {
+  const tradeId = req.body;
+  const trade = await prisma.trade.findUnique({
+    where: {
+      id: tradeId,
+    },
+    include: {
+      tradeListings: {
+        include: {
+          Listing: true,
+        },
+      },
+      Seller: true,
+      Buyer: true,
+    },
+  });
+
+  for (const { Listing } of trade?.tradeListings || []) {
+    if (Listing.sold) {
+      res.status(400).send("listing already sold");
+      return;
+    }
+  }
+  const paymentMethods = await stripe.paymentMethods.list({
+    customer: trade?.Buyer?.customerId || undefined,
+    type: "card",
+  });
+
+  const serviceFee = 20;
+  const buyerPaymentAmount =
+    100 * (serviceFee + parseInt(trade?.additionalFundsBuyer || "0", 10));
+  const sellerPaymentAmount =
+    100 * (serviceFee + parseInt(trade?.additionalFundsSeller || "0", 10));
+
+  const buyerPaymentIntent = await stripe.paymentIntents.create({
+    customer: trade?.Buyer?.customerId || undefined,
+    amount: buyerPaymentAmount,
+    currency: "usd",
+    payment_method: paymentMethods.data[0].id,
+    application_fee_amount: Math.round(buyerPaymentAmount * 0.07),
+    transfer_data: {
+      destination: trade?.Seller?.accountId || "",
+    },
+    off_session: true,
+    confirm: true,
+  });
+
+  const sellerPaymentIntent = await stripe.paymentIntents.create({
+    customer: trade?.Seller?.customerId || undefined,
+    amount: sellerPaymentAmount,
+    currency: "usd",
+    payment_method: paymentMethods.data[0].id,
+    application_fee_amount: Math.round(sellerPaymentAmount * 0.07),
+    transfer_data: {
+      destination: trade?.Buyer?.accountId || "",
+    },
+    off_session: true,
+    confirm: true,
+  });
+
+  for (const { Listing } of trade?.tradeListings || []) {
+    await prisma.listing.update({
+      where: {
+        id: Listing.id,
+      },
+      data: {
+        sold: true,
+      },
+    });
+  }
+
+  res.send({
+    buyerPaymentIntent: buyerPaymentIntent.client_secret,
+    sellerPaymentIntent: sellerPaymentIntent.client_secret,
+  });
+});
+
 export default s;
