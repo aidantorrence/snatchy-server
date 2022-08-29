@@ -73,7 +73,7 @@ sendGrid.post("/order-confirmation", async (req, res) => {
     res.status(400).send("failed");
   }
 });
-sendGrid.post("/trade-created", async (req, res) => {
+sendGrid.post("/offer-created", async (req, res) => {
   const { listing, price } = req.body;
   listing.price = price;
   try {
@@ -103,26 +103,35 @@ sendGrid.post("/trade-created", async (req, res) => {
 });
 
 sendGrid.post("/trade-created", async (req, res) => {
-  const { sellerListings, buyerListings, sellerId, buyerId, additionalFundsBuyer, additionalFundsSeller } = req.body;
+  const {
+    sellerId,
+    sellerListings,
+    buyerListings,
+    additionalFundsBuyer,
+    additionalFundsSeller,
+  } = req.body;
+  const seller = await prisma.user.findUnique({
+    where: {
+      uid: sellerId,
+    },
+  });
   const yourItems = sellerListings.map((listing: any) => {
-    ({
+    return {
       url: listing.images[0],
-      firstName: listing.owner.firstName,
       name: listing.name,
       price: listing.price,
       size: listing.size,
       gender: listing.gender[0],
-    });
+    };
   });
   const theirItems = buyerListings.map((listing: any) => {
-    ({
+    return {
       url: listing.images[0],
-      firstName: listing.owner.firstName,
       name: listing.name,
       price: listing.price,
       size: listing.size,
       gender: listing.gender[0],
-    });
+    };
   });
   try {
     sgMail.setApiKey(process.env.SENDGRID_API_KEY || "");
@@ -134,7 +143,52 @@ sendGrid.post("/trade-created", async (req, res) => {
           yourItems,
           theirItems,
           additionalFundsBuyer,
-          additionalFundsSeller
+          additionalFundsSeller,
+          firstName: seller?.firstName,
+        },
+        templateId: "d-e8f4c98af6734be6af1f1fd2b10437e7",
+      },
+    ];
+    await sgMail.send(messages);
+    res.status(200).send("success");
+  } catch (e) {
+    console.log(e);
+    res.status(400).send("failed");
+  }
+});
+sendGrid.post("/trade-declined", async (req, res) => {
+  const { trade } = req.body;
+  const { Buyer, sellerListings, buyerListings, additionalFundsBuyer, additionalFundsSeller } = trade;
+  const theirItems = sellerListings.map((listing: any) => {
+    return {
+      url: listing.images[0],
+      name: listing.name,
+      price: listing.price,
+      size: listing.size,
+      gender: listing.gender[0],
+    };
+  });
+  const yourItems = buyerListings.map((listing: any) => {
+    return {
+      url: listing.images[0],
+      name: listing.name,
+      price: listing.price,
+      size: listing.size,
+      gender: listing.gender[0],
+    };
+  });
+  try {
+    sgMail.setApiKey(process.env.SENDGRID_API_KEY || "");
+    const messages = [
+      {
+        to: "aidan.torrence@gmail.com", // Change to your currentUser.email
+        from: "instaheat@instaheat.co", // Change to your verified sender
+        dynamicTemplateData: {
+          yourItems,
+          theirItems,
+          additionalFundsBuyer,
+          additionalFundsSeller,
+          firstName: Buyer?.firstName,
         },
         templateId: "d-e8f4c98af6734be6af1f1fd2b10437e7",
       },
