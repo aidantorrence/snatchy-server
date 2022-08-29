@@ -15,8 +15,6 @@ trades.post("/trade", async (req, res) => {
   try {
     const trade = await prisma.trade.create({
       data: {
-        buyerId,
-        sellerId,
         additionalFundsBuyer,
         additionalFundsSeller,
         Buyer: {

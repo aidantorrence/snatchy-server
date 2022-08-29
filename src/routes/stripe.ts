@@ -243,7 +243,7 @@ s.post("/charge-offer", async (req, res) => {
 });
 
 s.post("/charge-trade", async (req, res) => {
-  const tradeId = req.body;
+  const { tradeId } = req.body;
   const trade = await prisma.trade.findUnique({
     where: {
       id: tradeId,
@@ -265,42 +265,52 @@ s.post("/charge-trade", async (req, res) => {
       return;
     }
   }
-  const paymentMethods = await stripe.paymentMethods.list({
+  const buyerPaymentMethods = await stripe.paymentMethods.list({
     customer: trade?.Buyer?.customerId || undefined,
     type: "card",
   });
-
-  const serviceFee = 20;
-  const buyerPaymentAmount =
-    100 * (serviceFee + parseInt(trade?.additionalFundsBuyer || "0", 10));
-  const sellerPaymentAmount =
-    100 * (serviceFee + parseInt(trade?.additionalFundsSeller || "0", 10));
-
-  const buyerPaymentIntent = await stripe.paymentIntents.create({
-    customer: trade?.Buyer?.customerId || undefined,
-    amount: buyerPaymentAmount,
-    currency: "usd",
-    payment_method: paymentMethods.data[0].id,
-    application_fee_amount: Math.round(buyerPaymentAmount * 0.07),
-    transfer_data: {
-      destination: trade?.Seller?.accountId || "",
-    },
-    off_session: true,
-    confirm: true,
-  });
-
-  const sellerPaymentIntent = await stripe.paymentIntents.create({
+  const sellerPaymentMethods = await stripe.paymentMethods.list({
     customer: trade?.Seller?.customerId || undefined,
-    amount: sellerPaymentAmount,
-    currency: "usd",
-    payment_method: paymentMethods.data[0].id,
-    application_fee_amount: Math.round(sellerPaymentAmount * 0.07),
-    transfer_data: {
-      destination: trade?.Buyer?.accountId || "",
-    },
-    off_session: true,
-    confirm: true,
+    type: "card",
   });
+
+  const sellerPaymentAmount =
+    100 * parseInt(trade?.additionalFundsSeller || "0", 10) * 1.0725;
+
+  const shippingFee = 20 * 100;
+
+  const buyerPaymentAmount =
+    shippingFee +
+    100 * parseInt(trade?.additionalFundsBuyer || "0", 10) * 1.0725 -
+    sellerPaymentAmount;
+
+  if (buyerPaymentAmount > 0) {
+    const buyerPaymentIntent = await stripe.paymentIntents.create({
+      customer: trade?.Buyer?.customerId || undefined,
+      amount: buyerPaymentAmount,
+      currency: "usd",
+      payment_method: buyerPaymentMethods.data[0].id,
+      application_fee_amount: Math.min(shippingFee, buyerPaymentAmount),
+      transfer_data: {
+        destination: trade?.Seller?.accountId || "",
+      },
+      off_session: true,
+      confirm: true,
+    });
+  } else if (sellerPaymentAmount > 0) {
+    const sellerPaymentIntent = await stripe.paymentIntents.create({
+      customer: trade?.Seller?.customerId || undefined,
+      amount: sellerPaymentAmount,
+      currency: "usd",
+      payment_method: sellerPaymentMethods.data[0].id,
+      application_fee_amount: Math.min(shippingFee, sellerPaymentAmount),
+      transfer_data: {
+        destination: trade?.Buyer?.accountId || "",
+      },
+      off_session: true,
+      confirm: true,
+    });
+  }
 
   for (const { Listing } of trade?.tradeListings || []) {
     await prisma.listing.update({
@@ -313,10 +323,11 @@ s.post("/charge-trade", async (req, res) => {
     });
   }
 
-  res.send({
-    buyerPaymentIntent: buyerPaymentIntent.client_secret,
-    sellerPaymentIntent: sellerPaymentIntent.client_secret,
-  });
+  // res.send({
+  //   buyerPaymentIntent: buyerPaymentIntent.client_secret,
+  //   sellerPaymentIntent: sellerPaymentIntent.client_secret,
+  // });
+  res.send("success");
 });
 
 export default s;
