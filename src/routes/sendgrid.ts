@@ -9,10 +9,10 @@ sendGrid.post("/order-confirmation", async (req, res) => {
   let { currentUser, listing, offer } = req.body;
 
   // different flow when order is confirmed from offer page
-  if(offer) {
+  if (offer) {
     currentUser = await prisma.user.findUnique({
       where: {
-        uid: offer.buyerId, 
+        uid: offer.buyerId,
       },
     });
     listing = await prisma.listing.findUnique({
@@ -53,10 +53,10 @@ sendGrid.post("/order-confirmation", async (req, res) => {
           firstName: listing.owner.firstName,
           buyerFirstName: currentUser.firstName,
           buyerLastName: currentUser.lastName,
-          address: '417 Juniper Leaf Way',
-          city: 'Greer',
-          state: 'SC',
-          zipcode: '29651',
+          address: "417 Juniper Leaf Way",
+          city: "Greer",
+          state: "SC",
+          zipcode: "29651",
           url: listing.images[0],
           name: listing.name,
           price: listing.price,
@@ -73,7 +73,7 @@ sendGrid.post("/order-confirmation", async (req, res) => {
     res.status(400).send("failed");
   }
 });
-sendGrid.post("/offer-created", async (req, res) => {
+sendGrid.post("/trade-created", async (req, res) => {
   const { listing, price } = req.body;
   listing.price = price;
   try {
@@ -92,7 +92,52 @@ sendGrid.post("/offer-created", async (req, res) => {
           gender: listing.gender[0],
         },
         templateId: "d-1eacd4f741b943c7ba2f1c150a540788",
-      }
+      },
+    ];
+    await sgMail.send(messages);
+    res.status(200).send("success");
+  } catch (e) {
+    console.log(e);
+    res.status(400).send("failed");
+  }
+});
+
+sendGrid.post("/trade-created", async (req, res) => {
+  const { sellerListings, buyerListings, sellerId, buyerId, additionalFundsBuyer, additionalFundsSeller } = req.body;
+  const yourItems = sellerListings.map((listing: any) => {
+    ({
+      url: listing.images[0],
+      firstName: listing.owner.firstName,
+      name: listing.name,
+      price: listing.price,
+      size: listing.size,
+      gender: listing.gender[0],
+    });
+  });
+  const theirItems = buyerListings.map((listing: any) => {
+    ({
+      url: listing.images[0],
+      firstName: listing.owner.firstName,
+      name: listing.name,
+      price: listing.price,
+      size: listing.size,
+      gender: listing.gender[0],
+    });
+  });
+  try {
+    sgMail.setApiKey(process.env.SENDGRID_API_KEY || "");
+    const messages = [
+      {
+        to: "aidan.torrence@gmail.com", // Change to your currentUser.email
+        from: "instaheat@instaheat.co", // Change to your verified sender
+        dynamicTemplateData: {
+          yourItems,
+          theirItems,
+          additionalFundsBuyer,
+          additionalFundsSeller
+        },
+        templateId: "d-e8f4c98af6734be6af1f1fd2b10437e7",
+      },
     ];
     await sgMail.send(messages);
     res.status(200).send("success");
@@ -127,7 +172,7 @@ sendGrid.post("/offer-declined", async (req, res) => {
           gender: listing.gender[0],
         },
         templateId: "d-de43c2c14dab4ce58bd88a5753274cb1",
-      }
+      },
     ];
     await sgMail.send(messages);
     res.status(200).send("success");
@@ -136,6 +181,5 @@ sendGrid.post("/offer-declined", async (req, res) => {
     res.status(400).send("failed");
   }
 });
-
 
 export default sendGrid;
