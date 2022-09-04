@@ -162,12 +162,12 @@ s.post("/setup-payment", async (req, res) => {
     type: "card",
   });
 
-  if (paymentMethods.data.length) {
-    res.json({
-      paymentMethod: paymentMethods.data[0].id,
-    });
-    return;
-  }
+  // if (paymentMethods.data.length) {
+  //   res.json({
+  //     paymentMethod: paymentMethods.data[0].id,
+  //   });
+  //   return;
+  // }
 
   const ephemeralKey = await stripe.ephemeralKeys.create(
     { customer: customerId },
@@ -179,6 +179,7 @@ s.post("/setup-payment", async (req, res) => {
   });
 
   res.json({
+    paymentMethod: paymentMethods?.data[0]?.id,
     setupIntent: setupIntent.client_secret,
     ephemeralKey: ephemeralKey.secret,
     customer: customerId,
@@ -186,7 +187,7 @@ s.post("/setup-payment", async (req, res) => {
 });
 
 s.post("/charge-buy", async (req, res) => {
-  const  { uid, listingId} = req.body;
+  const { uid, listingId } = req.body;
 
   const listing = await prisma.listing.findUnique({
     where: {
