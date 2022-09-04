@@ -185,6 +185,64 @@ s.post("/setup-payment", async (req, res) => {
   });
 });
 
+s.post("/charge-buy", async (req, res) => {
+  const  { uid, listingId} = req.body;
+
+  const listing = await prisma.listing.findUnique({
+    where: {
+      id: listingId,
+    },
+  });
+
+  if (listing?.sold) {
+    res.status(400).send("listing already sold");
+    return;
+  }
+
+  const buyer = await prisma.user.findUnique({
+    where: {
+      uid,
+    },
+  });
+
+  const seller = await prisma.user.findUnique({
+    where: {
+      uid: listing?.ownerId,
+    },
+  });
+
+  const paymentMethods = await stripe.paymentMethods.list({
+    customer: buyer?.customerId || undefined,
+    type: "card",
+  });
+
+  const paymentAmount = calculateOrderAmount([listing]);
+
+  const paymentIntent = await stripe.paymentIntents.create({
+    customer: buyer?.customerId || undefined,
+    amount: paymentAmount,
+    currency: "usd",
+    payment_method: paymentMethods.data[0].id,
+    application_fee_amount: Math.round(paymentAmount * 0.07),
+    transfer_data: {
+      destination: seller?.accountId || "",
+    },
+    off_session: true,
+    confirm: true,
+  });
+  await prisma.listing.update({
+    where: {
+      id: listingId,
+    },
+    data: {
+      sold: true,
+    },
+  });
+  res.send({
+    paymentIntent: paymentIntent.client_secret,
+  });
+});
+
 s.post("/charge-offer", async (req, res) => {
   const offer = req.body;
 

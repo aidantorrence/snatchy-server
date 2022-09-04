@@ -158,23 +158,25 @@ sendGrid.post("/trade-created", async (req, res) => {
 });
 sendGrid.post("/trade-declined", async (req, res) => {
   const { trade } = req.body;
-  const { Buyer, sellerListings, buyerListings, additionalFundsBuyer, additionalFundsSeller } = trade;
-  const theirItems = sellerListings.map((listing: any) => {
+  const { Buyer, tradeListings, additionalFundsBuyer, additionalFundsSeller } = trade;
+  const theirItems = tradeListings.filter((listing: any) => listing.direction === 'SELLER').map((listing: any) => {
+    const { Listing } = listing
     return {
-      url: listing.images[0],
-      name: listing.name,
-      price: listing.price,
-      size: listing.size,
-      gender: listing.gender[0],
+      url: Listing.images[0],
+      name: Listing.name,
+      price: Listing.price,
+      size: Listing.size,
+      gender: Listing.gender[0],
     };
   });
-  const yourItems = buyerListings.map((listing: any) => {
+  const yourItems = tradeListings.filter((listing: any) => listing.direction === 'BUYER').map((listing: any) => {
+    const { Listing } = listing
     return {
-      url: listing.images[0],
-      name: listing.name,
-      price: listing.price,
-      size: listing.size,
-      gender: listing.gender[0],
+      url: Listing.images[0],
+      name: Listing.name,
+      price: Listing.price,
+      size: Listing.size,
+      gender: Listing.gender[0],
     };
   });
   try {
@@ -190,7 +192,73 @@ sendGrid.post("/trade-declined", async (req, res) => {
           additionalFundsSeller,
           firstName: Buyer?.firstName,
         },
-        templateId: "d-e8f4c98af6734be6af1f1fd2b10437e7",
+        templateId: "d-996ffecc769b433fa4dcd66aaaf0d967",
+      },
+    ];
+    await sgMail.send(messages);
+    res.status(200).send("success");
+  } catch (e) {
+    console.log(e);
+    res.status(400).send("failed");
+  }
+});
+sendGrid.post("/trade-confirmation", async (req, res) => {
+  const { trade } = req.body;
+  const { Buyer, Seller, tradeListings, additionalFundsBuyer, additionalFundsSeller } = trade;
+  const sellerItems = tradeListings.filter((listing: any) => listing.direction === 'SELLER').map((listing: any) => {
+    const { Listing } = listing
+    return {
+      url: Listing.images[0],
+      name: Listing.name,
+      price: Listing.price,
+      size: Listing.size,
+      gender: Listing.gender[0],
+    };
+  });
+  const buyerItems = tradeListings.filter((listing: any) => listing.direction === 'BUYER').map((listing: any) => {
+    const { Listing } = listing
+    return {
+      url: Listing.images[0],
+      name: Listing.name,
+      price: Listing.price,
+      size: Listing.size,
+      gender: Listing.gender[0],
+    };
+  });
+  try {
+    sgMail.setApiKey(process.env.SENDGRID_API_KEY || "");
+    const messages = [
+      {
+        to: "aidan.torrence@gmail.com", // Change to seller
+        from: "instaheat@instaheat.co", 
+        dynamicTemplateData: {
+          yourItems: sellerItems,
+          theirItems: buyerItems,
+          yourAdditionalFunds: additionalFundsSeller,
+          theirAdditionalFunds: additionalFundsBuyer,
+          firstName: Seller?.firstName,
+          address: "417 Juniper Leaf Way",
+          city: "Greer",
+          state: "SC",
+          zipcode: "29651",
+        },
+        templateId: "d-0dfd624cefbd4174af5d93d3567af0c1",
+      },
+      {
+        to: "aidan.torrence@gmail.com", // Change to buyer
+        from: "instaheat@instaheat.co",
+        dynamicTemplateData: {
+          yourItems: buyerItems,
+          theirItems: sellerItems,
+          yourAdditionalFunds: additionalFundsBuyer,
+          theirAdditionalFunds: additionalFundsSeller,
+          firstName: Buyer?.firstName,
+          address: "417 Juniper Leaf Way",
+          city: "Greer",
+          state: "SC",
+          zipcode: "29651",
+        },
+        templateId: "d-0dfd624cefbd4174af5d93d3567af0c1",
       },
     ];
     await sgMail.send(messages);
