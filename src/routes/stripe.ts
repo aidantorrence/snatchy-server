@@ -157,18 +157,6 @@ s.post("/setup-payment", async (req, res) => {
     customerId = customer.id;
   }
 
-  const paymentMethods = await stripe.paymentMethods.list({
-    customer: customerId,
-    type: "card",
-  });
-
-  // if (paymentMethods.data.length) {
-  //   res.json({
-  //     paymentMethod: paymentMethods.data[0].id,
-  //   });
-  //   return;
-  // }
-
   const ephemeralKey = await stripe.ephemeralKeys.create(
     { customer: customerId },
     { apiVersion: "2020-08-27" }
@@ -179,11 +167,16 @@ s.post("/setup-payment", async (req, res) => {
   });
 
   res.json({
-    paymentMethod: paymentMethods?.data[0]?.id,
     setupIntent: setupIntent.client_secret,
     ephemeralKey: ephemeralKey.secret,
     customer: customerId,
   });
+});
+
+s.get("/payment-method-details/:id", async (req, res) => {
+  const { id } = req.params;
+  const paymentMethod = await stripe.paymentMethods.retrieve(id);
+  res.json(paymentMethod);
 });
 
 s.post("/charge-buy", async (req, res) => {
@@ -212,10 +205,11 @@ s.post("/charge-buy", async (req, res) => {
     },
   });
 
-  const paymentMethods = await stripe.paymentMethods.list({
-    customer: buyer?.customerId || undefined,
-    type: "card",
-  });
+  // const paymentMethods = await stripe.paymentMethods.list({
+  //   customer: buyer?.customerId || undefined,
+  //   type: "card",
+  // });
+  // const setupIntent = await stripe.setupIntents.retrieve(buyer?.setupIntent || '');
 
   const paymentAmount = calculateOrderAmount([listing]);
 
@@ -223,7 +217,7 @@ s.post("/charge-buy", async (req, res) => {
     customer: buyer?.customerId || undefined,
     amount: paymentAmount,
     currency: "usd",
-    payment_method: paymentMethods.data[0].id,
+    payment_method: buyer?.paymentMethodId as any,
     application_fee_amount: Math.round(paymentAmount * 0.07),
     transfer_data: {
       destination: seller?.accountId || "",
@@ -270,17 +264,17 @@ s.post("/charge-offer", async (req, res) => {
     },
   });
 
-  const paymentMethods = await stripe.paymentMethods.list({
-    customer: buyer?.customerId || undefined,
-    type: "card",
-  });
+  // const paymentMethods = await stripe.paymentMethods.list({
+  //   customer: buyer?.customerId || undefined,
+  //   type: "card",
+  // });
 
   const paymentAmount = calculateOrderAmount([offer]);
   const paymentIntent = await stripe.paymentIntents.create({
     customer: buyer?.customerId || undefined,
     amount: paymentAmount,
     currency: "usd",
-    payment_method: paymentMethods.data[0].id,
+    payment_method: buyer?.paymentMethodId as any,
     application_fee_amount: Math.round(paymentAmount * 0.07),
     transfer_data: {
       destination: seller?.accountId || "",
@@ -324,14 +318,14 @@ s.post("/charge-trade", async (req, res) => {
       return;
     }
   }
-  const buyerPaymentMethods = await stripe.paymentMethods.list({
-    customer: trade?.Buyer?.customerId || undefined,
-    type: "card",
-  });
-  const sellerPaymentMethods = await stripe.paymentMethods.list({
-    customer: trade?.Seller?.customerId || undefined,
-    type: "card",
-  });
+  // const buyerPaymentMethods = await stripe.paymentMethods.list({
+  //   customer: trade?.Buyer?.customerId || undefined,
+  //   type: "card",
+  // });
+  // const sellerPaymentMethods = await stripe.paymentMethods.list({
+  //   customer: trade?.Seller?.customerId || undefined,
+  //   type: "card",
+  // });
 
   const sellerPaymentAmount =
     100 * parseInt(trade?.additionalFundsSeller || "0", 10) * 1.0725;
@@ -348,7 +342,7 @@ s.post("/charge-trade", async (req, res) => {
       customer: trade?.Buyer?.customerId || undefined,
       amount: buyerPaymentAmount,
       currency: "usd",
-      payment_method: buyerPaymentMethods.data[0].id,
+      payment_method: trade?.Buyer?.paymentMethodId as any,
       application_fee_amount: Math.min(shippingFee, buyerPaymentAmount),
       transfer_data: {
         destination: trade?.Seller?.accountId || "",
@@ -361,7 +355,7 @@ s.post("/charge-trade", async (req, res) => {
       customer: trade?.Seller?.customerId || undefined,
       amount: sellerPaymentAmount,
       currency: "usd",
-      payment_method: sellerPaymentMethods.data[0].id,
+      payment_method: trade?.Seller?.paymentMethodId as any,
       application_fee_amount: Math.min(shippingFee, sellerPaymentAmount),
       transfer_data: {
         destination: trade?.Buyer?.accountId || "",

@@ -49,6 +49,9 @@ model User {
   country         String?
   customerId      String?
   paymentMethodId String?
+  paymentExpYear  Int?
+  paymentExpMonth Int?
+  paymentLast4    String?
   BuyerOffers     Offer[]   @relation(name: "buyerOffer")
   SellerOffers    Offer[]   @relation(name: "sellerOffer")
   BuyerTrades     Trade[]   @relation(name: "buyerTrade")
@@ -88,8 +91,8 @@ model Trade {
 model Trade_Listing {
   tradeId   Int
   listingId Int
-  Trade     Trade   @relation(fields: [tradeId], references: [id])
-  Listing   Listing @relation(fields: [listingId], references: [id])
+  Trade     Trade     @relation(fields: [tradeId], references: [id])
+  Listing   Listing   @relation(fields: [listingId], references: [id])
   direction Direction
 
   @@id([tradeId, listingId])
