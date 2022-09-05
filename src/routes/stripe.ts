@@ -149,11 +149,27 @@ s.post("/payment-sheet", async (req, res) => {
 });
 
 s.post("/setup-payment", async (req, res) => {
+  const { uid } = req.body;
   let customerId;
-  if (req.body.customerId) {
-    customerId = req.body.customerId;
+
+  const user = await prisma.user.findUnique({
+    where: {
+      uid,
+    },
+  });
+
+  if (user?.customerId) {
+    customerId = user?.customerId;
   } else {
     const customer = await stripe.customers.create();
+    await prisma.user.update({
+      where: {
+        uid,
+      },
+      data: {
+        customerId: customer.id,
+      },
+    });
     customerId = customer.id;
   }
 

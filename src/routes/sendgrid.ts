@@ -19,6 +19,9 @@ sendGrid.post("/order-confirmation", async (req, res) => {
       where: {
         id: offer.listingId,
       },
+      include: {
+        owner: true,
+      },
     });
     listing.price = offer.price;
   }
@@ -158,27 +161,32 @@ sendGrid.post("/trade-created", async (req, res) => {
 });
 sendGrid.post("/trade-declined", async (req, res) => {
   const { trade } = req.body;
-  const { Buyer, tradeListings, additionalFundsBuyer, additionalFundsSeller } = trade;
-  const theirItems = tradeListings.filter((listing: any) => listing.direction === 'SELLER').map((listing: any) => {
-    const { Listing } = listing
-    return {
-      url: Listing.images[0],
-      name: Listing.name,
-      price: Listing.price,
-      size: Listing.size,
-      gender: Listing.gender[0],
-    };
-  });
-  const yourItems = tradeListings.filter((listing: any) => listing.direction === 'BUYER').map((listing: any) => {
-    const { Listing } = listing
-    return {
-      url: Listing.images[0],
-      name: Listing.name,
-      price: Listing.price,
-      size: Listing.size,
-      gender: Listing.gender[0],
-    };
-  });
+  const { Buyer, tradeListings, additionalFundsBuyer, additionalFundsSeller } =
+    trade;
+  const theirItems = tradeListings
+    .filter((listing: any) => listing.direction === "SELLER")
+    .map((listing: any) => {
+      const { Listing } = listing;
+      return {
+        url: Listing.images[0],
+        name: Listing.name,
+        price: Listing.price,
+        size: Listing.size,
+        gender: Listing.gender[0],
+      };
+    });
+  const yourItems = tradeListings
+    .filter((listing: any) => listing.direction === "BUYER")
+    .map((listing: any) => {
+      const { Listing } = listing;
+      return {
+        url: Listing.images[0],
+        name: Listing.name,
+        price: Listing.price,
+        size: Listing.size,
+        gender: Listing.gender[0],
+      };
+    });
   try {
     sgMail.setApiKey(process.env.SENDGRID_API_KEY || "");
     const messages = [
@@ -204,33 +212,43 @@ sendGrid.post("/trade-declined", async (req, res) => {
 });
 sendGrid.post("/trade-confirmation", async (req, res) => {
   const { trade } = req.body;
-  const { Buyer, Seller, tradeListings, additionalFundsBuyer, additionalFundsSeller } = trade;
-  const sellerItems = tradeListings.filter((listing: any) => listing.direction === 'SELLER').map((listing: any) => {
-    const { Listing } = listing
-    return {
-      url: Listing.images[0],
-      name: Listing.name,
-      price: Listing.price,
-      size: Listing.size,
-      gender: Listing.gender[0],
-    };
-  });
-  const buyerItems = tradeListings.filter((listing: any) => listing.direction === 'BUYER').map((listing: any) => {
-    const { Listing } = listing
-    return {
-      url: Listing.images[0],
-      name: Listing.name,
-      price: Listing.price,
-      size: Listing.size,
-      gender: Listing.gender[0],
-    };
-  });
+  const {
+    Buyer,
+    Seller,
+    tradeListings,
+    additionalFundsBuyer,
+    additionalFundsSeller,
+  } = trade;
+  const sellerItems = tradeListings
+    .filter((listing: any) => listing.direction === "SELLER")
+    .map((listing: any) => {
+      const { Listing } = listing;
+      return {
+        url: Listing.images[0],
+        name: Listing.name,
+        price: Listing.price,
+        size: Listing.size,
+        gender: Listing.gender[0],
+      };
+    });
+  const buyerItems = tradeListings
+    .filter((listing: any) => listing.direction === "BUYER")
+    .map((listing: any) => {
+      const { Listing } = listing;
+      return {
+        url: Listing.images[0],
+        name: Listing.name,
+        price: Listing.price,
+        size: Listing.size,
+        gender: Listing.gender[0],
+      };
+    });
   try {
     sgMail.setApiKey(process.env.SENDGRID_API_KEY || "");
     const messages = [
       {
         to: "aidan.torrence@gmail.com", // Change to seller
-        from: "instaheat@instaheat.co", 
+        from: "instaheat@instaheat.co",
         dynamicTemplateData: {
           yourItems: sellerItems,
           theirItems: buyerItems,
