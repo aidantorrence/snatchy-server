@@ -30,7 +30,7 @@ sendGrid.post("/order-confirmation", async (req, res) => {
     sgMail.setApiKey(process.env.SENDGRID_API_KEY || "");
     const messages = [
       {
-        to: "aidan.torrence@gmail.com", // Change to your currentUser.email
+        to: currentUser.email,
         from: "instaheat@instaheat.co", // Change to your verified sender
         dynamicTemplateData: {
           firstName: currentUser.firstName,
@@ -50,7 +50,7 @@ sendGrid.post("/order-confirmation", async (req, res) => {
         templateId: "d-bb442e4b8d094cfaacfb676babb58a54",
       },
       {
-        to: "aidan.torrence@gmail.com", // Change to listing.owner.email
+        to: listing.owner.email,
         from: "instaheat@instaheat.co", // Change to your verified sender
         dynamicTemplateData: {
           firstName: listing.owner.firstName,
@@ -83,7 +83,7 @@ sendGrid.post("/offer-created", async (req, res) => {
     sgMail.setApiKey(process.env.SENDGRID_API_KEY || "");
     const messages = [
       {
-        to: "aidan.torrence@gmail.com", // Change to your currentUser.email
+        to: currentUser.email,
         from: "instaheat@instaheat.co", // Change to your verified sender
         dynamicTemplateData: {
           url: listing.images[0],
@@ -140,7 +140,7 @@ sendGrid.post("/trade-created", async (req, res) => {
     sgMail.setApiKey(process.env.SENDGRID_API_KEY || "");
     const messages = [
       {
-        to: "aidan.torrence@gmail.com", // Change to your currentUser.email
+        to: seller?.email,
         from: "instaheat@instaheat.co", // Change to your verified sender
         dynamicTemplateData: {
           yourItems,
@@ -191,7 +191,7 @@ sendGrid.post("/trade-declined", async (req, res) => {
     sgMail.setApiKey(process.env.SENDGRID_API_KEY || "");
     const messages = [
       {
-        to: "aidan.torrence@gmail.com", // Change to your currentUser.email
+        to: Buyer?.email,
         from: "instaheat@instaheat.co", // Change to your verified sender
         dynamicTemplateData: {
           yourItems,
@@ -247,7 +247,7 @@ sendGrid.post("/trade-confirmation", async (req, res) => {
     sgMail.setApiKey(process.env.SENDGRID_API_KEY || "");
     const messages = [
       {
-        to: "aidan.torrence@gmail.com", // Change to seller
+        to: Seller?.email,
         from: "instaheat@instaheat.co",
         dynamicTemplateData: {
           yourItems: sellerItems,
@@ -263,7 +263,7 @@ sendGrid.post("/trade-confirmation", async (req, res) => {
         templateId: "d-0dfd624cefbd4174af5d93d3567af0c1",
       },
       {
-        to: "aidan.torrence@gmail.com", // Change to buyer
+        to: Buyer?.email,
         from: "instaheat@instaheat.co",
         dynamicTemplateData: {
           yourItems: buyerItems,
@@ -301,7 +301,7 @@ sendGrid.post("/offer-declined", async (req, res) => {
     sgMail.setApiKey(process.env.SENDGRID_API_KEY || "");
     const messages = [
       {
-        to: "aidan.torrence@gmail.com", // Change to your currentUser.email
+        to: buyer?.email,
         from: "instaheat@instaheat.co", // Change to your verified sender
         dynamicTemplateData: {
           url: listing.images[0],
