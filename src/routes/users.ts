@@ -42,14 +42,34 @@ users.patch("/user", async (req, res) => {
 });
 
 users.post("/user", async (req, res) => {
+  const { email } = req.body;
+
   try {
     const user = await prisma.user.create({
-      data: req.body,
+      data: {
+        ...req.body,
+        email: email.toLowerCase(),
+      },
     });
     res.status(200).send(user);
   } catch (e) {
     console.log(e);
     res.status(400).send("user failed");
+  }
+});
+
+users.delete("/user", async (req, res) => {
+  const uid = req.body;
+  try {
+    const data = await prisma.user.delete({
+      where: {
+        uid,
+      },
+    });
+    res.status(200).send(data);
+  } catch (e) {
+    console.log(e);
+    res.status(400).send("user delete failed");
   }
 });
 
