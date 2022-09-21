@@ -59,7 +59,7 @@ users.post("/user", async (req, res) => {
 });
 
 users.delete("/user", async (req, res) => {
-  const uid = req.body;
+  const { uid } = req.body;
   try {
     const data = await prisma.user.delete({
       where: {
