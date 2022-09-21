@@ -83,7 +83,7 @@ sendGrid.post("/offer-created", async (req, res) => {
     sgMail.setApiKey(process.env.SENDGRID_API_KEY || "");
     const messages = [
       {
-        to: currentUser.email,
+        to: listing.owner.email,
         from: "instaheat@instaheat.co", // Change to your verified sender
         dynamicTemplateData: {
           url: listing.images[0],
