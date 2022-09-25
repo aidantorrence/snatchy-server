@@ -6,13 +6,29 @@ const prisma = new PrismaClient();
 
 const listings = Router();
 listings.get("/listings", async (req, res) => {
+  const uid = req.query.uid as string;
   try {
     const listings = await prisma.listing.findMany({
       where: {
         sold: false,
+        owner: {
+          uid: {
+            not: uid,
+          },
+          Blocker: {
+            none: {
+              blockedId: uid,
+            },
+          },
+          Blocked: {
+            none: {
+              blockerId: uid,
+            },
+          },
+        },
       },
       include: {
-        owner: true, // Return all fields
+        owner: true,
       },
     });
     res.json(listings);
@@ -98,26 +114,6 @@ listings.delete("/listing", async (req, res) => {
   }
 });
 
-listings.get("/listing-to-review", async (req, res) => {
-  try {
-    const listing = await prisma.$queryRaw`
-			SELECT * FROM "listing"
-            WHERE "reviewDate" = (
-				SELECT min("reviewDate") 
-				FROM "listing"
-				WHERE ( "lastReviewedDate" IS NULL OR DATE("lastReviewedDate" at time zone 'utc' at time zone 'est') <> DATE(NOW() at time zone 'utc' at time zone 'est') )
-				AND ENABLED = true
-			)
-			LIMIT 1
-        `;
-    // WHERE ("updatedAt" < NOW() - INTERVAL '6 hours' OR EXTRACT (epoch from ("updatedAt" - "createdAt")) < 60)
-    res.json(listing);
-  } catch (e) {
-    console.log(e);
-    res.json(e);
-  }
-});
-
 listings.patch("/listing", async (req, res) => {
   const { id } = req.body;
   try {
@@ -151,6 +147,18 @@ listings.delete("/listing", async (req, res) => {
   try {
     const listing = await prisma.listing.delete({
       where: { id },
+    });
+    res.json(listing);
+  } catch (e) {
+    console.log(e);
+    res.json(e);
+  }
+});
+
+listings.post("/flagged-content", async (req, res) => {
+  try {
+    const listing = await prisma.flaggedContent.create({
+      data: req.body,
     });
     res.json(listing);
   } catch (e) {

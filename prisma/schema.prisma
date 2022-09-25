@@ -8,10 +8,10 @@ datasource db {
 }
 
 model Listing {
-  id             Int             @id @default(autoincrement())
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
-  name           String          @db.VarChar
+  id             Int              @id @default(autoincrement())
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  name           String           @db.VarChar
   price          String
   images         String[]
   condition      String
@@ -20,26 +20,27 @@ model Listing {
   size           String
   description    String
   listingDefects String[]
-  published      Boolean         @default(false)
+  published      Boolean          @default(false)
   ownerId        String
-  sold           Boolean         @default(false)
+  sold           Boolean          @default(false)
   gender         String
-  owner          User            @relation(fields: [ownerId], references: [uid])
+  owner          User             @relation(fields: [ownerId], references: [uid])
   offers         Offer[]
   tradeListings  Trade_Listing[]
+  FlaggedContent FlaggedContent[]
 }
 
 model User {
-  id              Int       @id @default(autoincrement())
-  email           String    @unique
+  id              Int              @id @default(autoincrement())
+  email           String           @unique
   firstName       String?
   lastName        String?
-  sellerName      String?   @unique
+  sellerName      String?          @unique
   userImage       String?
   description     String?
-  uid             String    @unique @db.VarChar
-  accountId       String?   @unique
-  chargesEnabled  Boolean   @default(false)
+  uid             String           @unique @db.VarChar
+  accountId       String?          @unique
+  chargesEnabled  Boolean          @default(false)
   listings        Listing[]
   address         String?
   optionalAddress String?
@@ -52,10 +53,13 @@ model User {
   paymentExpYear  Int?
   paymentExpMonth Int?
   paymentLast4    String?
-  BuyerOffers     Offer[]   @relation(name: "buyerOffer")
-  SellerOffers    Offer[]   @relation(name: "sellerOffer")
-  BuyerTrades     Trade[]   @relation(name: "buyerTrade")
-  SellerTrades    Trade[]   @relation(name: "sellerTrade")
+  BuyerOffers     Offer[]          @relation(name: "buyerOffer")
+  SellerOffers    Offer[]          @relation(name: "sellerOffer")
+  BuyerTrades     Trade[]          @relation(name: "buyerTrade")
+  SellerTrades    Trade[]          @relation(name: "sellerTrade")
+  Blocker         Block[]          @relation(name: "blocker")
+  Blocked         Block[]          @relation(name: "blocked")
+  FlaggedContent  FlaggedContent[]
 }
 
 model Offer {
@@ -96,6 +100,27 @@ model Trade_Listing {
   direction Direction
 
   @@id([tradeId, listingId])
+}
+
+model Block {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  blockerId String
+  blocker   User     @relation(name: "blocker", fields: [blockerId], references: [uid])
+  blockedId String
+  blocked   User     @relation(name: "blocked", fields: [blockedId], references: [uid])
+}
+
+model FlaggedContent {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  listingId Int
+  listing   Listing  @relation(fields: [listingId], references: [id])
+  uid       String
+  user      User     @relation(fields: [uid], references: [uid])
+  reason    String
 }
 
 enum Direction {

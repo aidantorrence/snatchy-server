@@ -73,4 +73,20 @@ users.delete("/user", async (req, res) => {
   }
 });
 
+users.post("/block-user", async (req, res) => {
+  const { uid, blockedUid } = req.body;
+  try {
+    const data = await prisma.block.create({
+      data: {
+        blockerId: uid,
+        blockedId: blockedUid,
+      },
+    });
+    res.status(200).send(data);
+  } catch (e) {
+    console.log(e);
+    res.status(400).send("block update failed");
+  }
+});
+
 export default users;
