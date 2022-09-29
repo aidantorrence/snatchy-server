@@ -7,30 +7,42 @@ const prisma = new PrismaClient();
 const listings = Router();
 listings.get("/listings", async (req, res) => {
   const uid = req.query.uid as string;
+  let listings;
   try {
-    const listings = await prisma.listing.findMany({
-      where: {
-        sold: false,
-        owner: {
-          uid: {
-            not: uid,
-          },
-          Blocker: {
-            none: {
-              blockedId: uid,
+    if (uid) {
+      listings = await prisma.listing.findMany({
+        where: {
+          sold: false,
+          owner: {
+            uid: {
+              not: uid,
             },
-          },
-          Blocked: {
-            none: {
-              blockerId: uid,
+            Blocker: {
+              none: {
+                blockedId: uid,
+              },
+            },
+            Blocked: {
+              none: {
+                blockerId: uid,
+              },
             },
           },
         },
-      },
-      include: {
-        owner: true,
-      },
-    });
+        include: {
+          owner: true,
+        },
+      });
+    } else {
+      listings = await prisma.listing.findMany({
+        where: {
+          sold: false,
+        },
+        include: {
+          owner: true,
+        },
+      });
+    }
     res.json(listings);
   } catch (e) {
     console.log(e);
