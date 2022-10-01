@@ -20,7 +20,8 @@ export const calculateOrderAmount = (items: any) => {
 s.post("/create-account", async (req, res) => {
   const { uid } = req.body;
   const { redirectUrl }: any = req.query;
-  let account: any;
+  console.log('redirectUrl', encodeURIComponent(redirectUrl));
+  let account: any
   const user = await prisma.user.findUnique({
     where: {
       uid,
@@ -46,8 +47,8 @@ s.post("/create-account", async (req, res) => {
   }
   const accountLink = await stripe.accountLinks.create({
     account: user?.accountId || account?.id,
-    refresh_url: redirectUrl,
-    return_url: redirectUrl,
+    refresh_url: `${process.env.SERVER_URL}/redirect?encodedRedirectUrl=${encodeURIComponent(redirectUrl)}`,
+    return_url: `${process.env.SERVER_URL}/redirect?encodedRedirectUrl=${encodeURIComponent(redirectUrl)}`,
     type: "account_onboarding",
   });
   res.send({
@@ -74,9 +75,10 @@ s.get("/account-status/:accountId", async (req, res) => {
 });
 
 s.get("/redirect", async (req, res) => {
+  const { encodedRedirectUrl }: any = req.query;
   res
     .status(301)
-    .redirect("exp://ya-b6f.aidantorrence.instaheat.exp.direct:80");
+    .redirect(decodeURIComponent(encodedRedirectUrl));
 });
 
 s.post("/create-payment-intent", async (req: any, res: any) => {
