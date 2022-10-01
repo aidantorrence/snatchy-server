@@ -19,6 +19,7 @@ export const calculateOrderAmount = (items: any) => {
 
 s.post("/create-account", async (req, res) => {
   const { uid } = req.body;
+  const { redirectUrl }: any = req.query;
   let account: any;
   const user = await prisma.user.findUnique({
     where: {
@@ -45,8 +46,8 @@ s.post("/create-account", async (req, res) => {
   }
   const accountLink = await stripe.accountLinks.create({
     account: user?.accountId || account?.id,
-    refresh_url: "https://instaheat-server.herokuapp.com/redirect",
-    return_url: "https://instaheat-server.herokuapp.com/redirect",
+    refresh_url: redirectUrl,
+    return_url: redirectUrl,
     type: "account_onboarding",
   });
   res.send({
