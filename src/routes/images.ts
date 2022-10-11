@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from "uuid";
 
 const images = Router();
 
-images.post("upload-images", async (req, res) => {
+images.post("/upload-images", async (req, res) => {
   const blob = req.body;
   try {
     const fileRef = ref(getStorage(), uuidv4());
