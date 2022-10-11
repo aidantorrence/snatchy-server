@@ -1,4 +1,5 @@
 import { Router } from "express";
+import images from "./images";
 import listings from "./listings";
 import offers from "./offers";
 import sendGrid from "./sendgrid";
@@ -14,5 +15,6 @@ router.use(s);
 router.use(sendGrid);
 router.use(offers);
 router.use(trades);
+router.use(images);
 
 export default router;
