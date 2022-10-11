@@ -15,6 +15,8 @@ const images = Router();
 
 images.post("/upload-images", async (req: any, res) => {
   const file = req?.files?.file;
+  console.log('blob?', req.blob);
+  console.log(req?.files?.file)
 
   try {
     const fileRef = ref(getStorage(), uuidv4());
