@@ -14,12 +14,14 @@ const images = Router();
 !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
 images.post("/upload-images", async (req: any, res) => {
-  const { uri } = req.body;
-  const img = await fetch(uri);
-  const blob = await img.blob();
+  const file = req?.files?.file;
+
   try {
     const fileRef = ref(getStorage(), uuidv4());
-    await uploadBytesResumable(fileRef, blob);
+    const metadata = {
+      contentType: "image/jpeg",
+    };
+    await uploadBytesResumable(fileRef, file.data, metadata);
     const downloadUrl = await getDownloadURL(fileRef);
     res.json(downloadUrl);
   } catch (e) {
