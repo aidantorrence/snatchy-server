@@ -4,6 +4,7 @@ import {
   ref,
   getDownloadURL,
   uploadBytesResumable,
+  uploadString,
 } from "firebase/storage";
 import { getApp, getApps, initializeApp } from "firebase/app";
 import { v4 as uuidv4 } from "uuid";
@@ -14,16 +15,11 @@ const images = Router();
 !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
 images.post("/upload-images", async (req: any, res) => {
-  const file = req?.files?.file;
-
   try {
-    const fileRef = ref(getStorage(), uuidv4());
-    const metadata = {
-      contentType: "image/jpeg",
-    };
-    await uploadBytesResumable(fileRef, file.data, metadata);
-    const downloadUrl = await getDownloadURL(fileRef);
-    res.json(downloadUrl);
+    const uuid = uuidv4()
+    const fileRef = ref(getStorage(), uuid);
+    await uploadString(fileRef, req.body.file, 'data_url');
+    res.json(uuid);
   } catch (e) {
     console.log(e);
     res.json(e);
