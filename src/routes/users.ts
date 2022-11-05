@@ -12,10 +12,7 @@ users.get("/user/:uid", async (req, res) => {
         uid: req.params.uid,
       },
       include: {
-        listings: {
-          where: {
-            sold: false,
-          },
+        outfits: {
         },
       },
     });

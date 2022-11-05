@@ -7,99 +7,56 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Listing {
+model Outfit {
   id             Int              @id @default(autoincrement())
   createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
-  name           String           @db.VarChar
-  price          String
-  images         String[]
-  condition      String
-  boxCondition   String
-  canTrade       Boolean
-  size           String
+  updatedAt      DateTime         @default(now()) @updatedAt
   description    String
-  listingDefects String[]
+  kibbeTypes     String[]
+  images         String[]
+  occasions      String[]
+  aesthetic      String
+  seasonalColors String[]
+  purchaseLink   String?
   published      Boolean          @default(false)
-  ownerId        String
-  sold           Boolean          @default(false)
-  gender         String
   owner          User             @relation(fields: [ownerId], references: [uid])
-  offers         Offer[]
-  tradeListings  Trade_Listing[]
+  ownerId        String
   FlaggedContent FlaggedContent[]
+  upvotes        Int              @default(0)
+  downvotes      Int              @default(0)
+  Comment        Comment[]
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  content   String
+  owner     User     @relation(fields: [ownerId], references: [uid])
+  ownerId   String
+  outfit    Outfit   @relation(fields: [outfitId], references: [id])
+  outfitId  Int
 }
 
 model User {
-  id              Int              @id @default(autoincrement())
+  uid             String           @id @unique @db.VarChar
   email           String           @unique
   firstName       String?
   lastName        String?
   sellerName      String?          @unique
   userImage       String?
   description     String?
-  uid             String           @unique @db.VarChar
-  accountId       String?          @unique
-  chargesEnabled  Boolean          @default(false)
-  listings        Listing[]
-  address         String?
-  optionalAddress String?
-  city            String?
-  state           String?
-  zipcode         String?
-  country         String?
+  outfits         Outfit[]
   customerId      String?
   paymentMethodId String?
   paymentExpYear  Int?
   paymentExpMonth Int?
   paymentLast4    String?
-  BuyerOffers     Offer[]          @relation(name: "buyerOffer")
-  SellerOffers    Offer[]          @relation(name: "sellerOffer")
-  BuyerTrades     Trade[]          @relation(name: "buyerTrade")
-  SellerTrades    Trade[]          @relation(name: "sellerTrade")
   Blocker         Block[]          @relation(name: "blocker")
   Blocked         Block[]          @relation(name: "blocked")
   FlaggedContent  FlaggedContent[]
-}
-
-model Offer {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  listingId Int
-  listing   Listing  @relation(fields: [listingId], references: [id])
-  buyerId   String
-  Buyer     User     @relation(name: "buyerOffer", fields: [buyerId], references: [uid])
-  sellerId  String
-  Seller    User     @relation(name: "sellerOffer", fields: [sellerId], references: [uid])
-  price     String
-  accepted  Boolean  @default(false)
-  cancelled Boolean  @default(false)
-}
-
-model Trade {
-  id                    Int             @id @default(autoincrement())
-  createdAt             DateTime        @default(now())
-  updatedAt             DateTime        @updatedAt
-  buyerId               String
-  Buyer                 User            @relation(name: "buyerTrade", fields: [buyerId], references: [uid])
-  sellerId              String
-  Seller                User            @relation(name: "sellerTrade", fields: [sellerId], references: [uid])
-  additionalFundsBuyer  String?
-  additionalFundsSeller String?
-  accepted              Boolean         @default(false)
-  cancelled             Boolean         @default(false)
-  tradeListings         Trade_Listing[]
-}
-
-model Trade_Listing {
-  tradeId   Int
-  listingId Int
-  Trade     Trade     @relation(fields: [tradeId], references: [id])
-  Listing   Listing   @relation(fields: [listingId], references: [id])
-  direction Direction
-
-  @@id([tradeId, listingId])
+  userType        UserType         @default(MEMBER)
+  Comment         Comment[]
 }
 
 model Block {
@@ -117,13 +74,13 @@ model FlaggedContent {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   listingId Int
-  listing   Listing  @relation(fields: [listingId], references: [id])
+  outfit    Outfit   @relation(fields: [listingId], references: [id])
   uid       String
   user      User     @relation(fields: [uid], references: [uid])
   reason    String
 }
 
-enum Direction {
-  SELLER
-  BUYER
+enum UserType {
+  EXPERT
+  MEMBER
 }
