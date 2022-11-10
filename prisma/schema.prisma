@@ -46,6 +46,7 @@ model User {
   sellerName      String?          @unique
   userImage       String?
   description     String?
+  modusType       String?
   outfits         Outfit[]
   customerId      String?
   paymentMethodId String?
