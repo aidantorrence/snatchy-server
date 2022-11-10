@@ -39,25 +39,26 @@ model Comment {
 }
 
 model User {
-  uid             String           @id @unique @db.VarChar
-  email           String           @unique
-  firstName       String?
-  lastName        String?
-  sellerName      String?          @unique
-  userImage       String?
-  description     String?
-  modusType       String?
-  outfits         Outfit[]
-  customerId      String?
-  paymentMethodId String?
-  paymentExpYear  Int?
-  paymentExpMonth Int?
-  paymentLast4    String?
-  Blocker         Block[]          @relation(name: "blocker")
-  Blocked         Block[]          @relation(name: "blocked")
-  FlaggedContent  FlaggedContent[]
-  userType        UserType         @default(MEMBER)
-  Comment         Comment[]
+  uid              String           @id @unique @db.VarChar
+  email            String           @unique
+  firstName        String?
+  lastName         String?
+  sellerName       String?          @unique
+  userImage        String?
+  description      String?
+  modusType        String?
+  outfits          Outfit[]
+  customerId       String?
+  paymentMethodId  String?
+  paymentExpYear   Int?
+  paymentExpMonth  Int?
+  paymentLast4     String?
+  Blocker          Block[]          @relation(name: "blocker")
+  Blocked          Block[]          @relation(name: "blocked")
+  FlaggedContent   FlaggedContent[]
+  userType         UserType         @default(MEMBER)
+  Comment          Comment[]
+  hasSeenModusType Boolean          @default(false)
 }
 
 model Block {
