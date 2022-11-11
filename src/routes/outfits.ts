@@ -28,7 +28,11 @@ outfits.get("/outfit/:id", async (req, res) => {
       },
       include: {
         owner: true,
-        Comment: true,
+        Comment: {
+          include: {
+            owner: true,
+          }
+        },
       },
     });
     res.json(outfit);
