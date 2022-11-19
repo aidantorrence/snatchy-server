@@ -19,6 +19,7 @@ model Outfit {
   aesthetic      String
   seasonalColors String[]
   purchaseLink   String?
+  postReason     String?
   published      Boolean          @default(false)
   owner          User             @relation(fields: [ownerId], references: [uid])
   ownerId        String
