@@ -5,19 +5,18 @@ const prisma = new PrismaClient();
 
 const votes = Router();
 
-votes.post("/vote", async (req, res) => {
-  const { uid, blockedUid } = req.body;
+votes.post("/post-vote", async (req, res) => {
+  const { uid, outfitId, vote } = req.body;
   try {
-    const data = await prisma.vote.create({
-      data: {
-        blockerId: uid,
-        blockedId: blockedUid,
-      },
+    const postVote = await prisma.postVote.upsert({
+      where: { uid_outfitId: { uid, outfitId } },
+      update: { uid, outfitId, vote },
+      create: { uid, outfitId, vote },
     });
-    res.status(200).send(data);
+    res.status(200).send(postVote);
   } catch (e) {
     console.log(e);
-    res.status(400).send("block update failed");
+    res.status(400).send("post vote create or update failed");
   }
 });
 

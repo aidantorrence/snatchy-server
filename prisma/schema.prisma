@@ -27,7 +27,7 @@ model Outfit {
   upvotes        Int              @default(0)
   downvotes      Int              @default(0)
   Comment        Comment[]
-  postVotes      postVotes[]
+  postVote      postVote[]
 }
 
 model Comment {
@@ -62,7 +62,7 @@ model User {
   userType         UserType         @default(MEMBER)
   Comment          Comment[]
   hasSeenModusType Boolean          @default(false)
-  postVotes        postVotes[]
+  postVote        postVote[]
 }
 
 model Block {
@@ -91,7 +91,7 @@ enum UserType {
   MEMBER
 }
 
-model postVotes {
+model postVote {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -100,4 +100,5 @@ model postVotes {
   outfitId  Int
   outfit    Outfit   @relation(fields: [outfitId], references: [id])
   vote      Int
+  @@unique([uid, outfitId])
 }
