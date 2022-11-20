@@ -21,6 +21,7 @@ outfits.get("/outfits", async (req, res) => {
 
 outfits.get("/outfit/:id", async (req, res) => {
   const { id } = req.params;
+  const uid = req.query.uid as string;
   try {
     const outfit = await prisma.outfit.findUnique({
       where: {
@@ -33,6 +34,11 @@ outfits.get("/outfit/:id", async (req, res) => {
             owner: true,
           }
         },
+        postVote: {
+          where: {
+            uid,
+          }
+        }
       },
     });
     res.json(outfit);
