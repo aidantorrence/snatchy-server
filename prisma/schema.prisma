@@ -27,6 +27,7 @@ model Outfit {
   upvotes        Int              @default(0)
   downvotes      Int              @default(0)
   Comment        Comment[]
+  postVotes      postVotes[]
 }
 
 model Comment {
@@ -61,6 +62,7 @@ model User {
   userType         UserType         @default(MEMBER)
   Comment          Comment[]
   hasSeenModusType Boolean          @default(false)
+  postVotes        postVotes[]
 }
 
 model Block {
@@ -87,4 +89,15 @@ model FlaggedContent {
 enum UserType {
   EXPERT
   MEMBER
+}
+
+model postVotes {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  uid       String
+  user      User     @relation(fields: [uid], references: [uid])
+  outfitId  Int
+  outfit    Outfit   @relation(fields: [outfitId], references: [id])
+  vote      Int
 }

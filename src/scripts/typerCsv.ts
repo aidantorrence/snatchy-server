@@ -1,10 +1,11 @@
 var fs = require('fs').promises;
 import { PrismaClient } from "@prisma/client";
 import { parse } from 'csv-parse/sync';
+import { stringify } from "ts-jest";
 
 const prisma = new PrismaClient();
 
-(async function () {
+const execute = async function () {
     const fileContent = await fs.readFile('src/scripts/typerFirst.csv');
 
     const records = parse(fileContent, {
@@ -29,20 +30,47 @@ const prisma = new PrismaClient();
 
     console.log(outfit);
 
-    // const records = [] as any;
-    // const parser = parse({
-    //   delimiter: ','
-    // });
-    // // Use the readable stream api to consume records
-    // parser.on('readable', function(){
-    //   let record;
-    //   while ((record = parser.read()) !== null) {
-    //     records.push(record);
-    //   }
-    // });
+}
+// execute();
 
-    // console.log(records)
+const kibbeMappings = {
+    Dramatic: 'Queen',
+    'Dramatic Classic': 'Boss',
+    'Flamboyant Gamine': 'Coquette',
+    'Flamboyant Natural': 'Supermodel',
+    'Romantic': 'Siren',
+    'Soft Classic': 'Lady',
+    'Soft Dramatic': 'Feline',
+    'Soft Gamine': 'Ingenue',
+    'Soft Natural': 'Vixen',
+    'Theatrical Romantic': 'Femme Fatale',
+} as any;
 
-    // const records = parse(fileContent, {columns: true});
-    // console.log(records)
-})();
+const convert = async function () {
+  const outfits = await prisma.outfit.findMany();
+
+  const convertedOutfits = outfits.map((outfit: any) => {
+    const modusTypes = outfit.kibbeTypes.map((type: string) => {
+      console.log(type, kibbeMappings[type])
+      return kibbeMappings[type]
+    })
+    return {
+      id: outfit.id,
+      kibbeTypes: modusTypes,
+    }
+  });
+
+  for (let i = 0; i < convertedOutfits.length; i++) {
+    const outfit = convertedOutfits[i];
+    await prisma.outfit.update({
+      where: {
+        id: outfit.id,
+      },
+      data: {
+        kibbeTypes: outfit.kibbeTypes,
+      }
+    });
+  }
+}
+
+convert();
