@@ -28,8 +28,6 @@ const execute = async function () {
       data: convertedRecords,
     });
 
-    console.log(outfit);
-
 }
 execute();
 
