@@ -41,7 +41,18 @@ outfits.get("/outfit/:id", async (req, res) => {
         }
       },
     });
-    res.json(outfit);
+
+    const votesPerPost = await prisma.postVote.aggregate({
+      where: {
+        outfitId: parseInt(id, 10),
+      },
+      _sum: {
+        vote: true,
+      },
+    });
+
+    res.json({ ...outfit, votes: (outfit?.upvotes || 0) - (outfit?.downvotes || 0) + (votesPerPost?._sum?.vote || 0) });
+
   } catch (e) {
     res.json(e);
   }
