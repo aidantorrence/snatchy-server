@@ -25,6 +25,7 @@ outfits.get("/outfits-with-votes", async (req, res) => {
     // custom sql query, get outfits with the vote count using the postVote table, get user data from the user table
     // const outfits = await prisma.$queryRaw`SELECT o.*, sum(pv.vote) AS voteCount FROM "Outfit" o LEFT JOIN "PostVote" pv ON o.id = pv."outfitId" GROUP BY o.id`;
     const outfits = await prisma.$queryRaw`SELECT o.*, sum(pv.vote)::int AS votes, u.* FROM "Outfit" o LEFT JOIN "PostVote" pv ON o.id = pv."outfitId" LEFT JOIN "User" u ON o."ownerId" = u.uid GROUP BY o.id, u.uid`;
+    console.log(outfits);
     res.json(outfits);
   } catch (e) {
     console.log(e);

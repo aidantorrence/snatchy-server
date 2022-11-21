@@ -6,7 +6,7 @@ import { stringify } from "ts-jest";
 const prisma = new PrismaClient();
 
 const execute = async function () {
-    const fileContent = await fs.readFile('src/scripts/typerFirst.csv');
+    const fileContent = await fs.readFile('src/scripts/Recs_mobile.csv');
 
     const records = parse(fileContent, {
       columns: true,
@@ -31,7 +31,7 @@ const execute = async function () {
     console.log(outfit);
 
 }
-// execute();
+execute();
 
 const kibbeMappings = {
     Dramatic: 'Queen',
@@ -73,4 +73,4 @@ const convert = async function () {
   }
 }
 
-convert();
+// convert();
