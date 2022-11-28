@@ -123,8 +123,7 @@ outfits.post("/outfit", async (req, res) => {
     sgMail.setApiKey(process.env.SENDGRID_API_KEY || "");
     const messages = [
       {
-        // to: 'jenniferxiao@college.harvard.edu',
-        to: 'aidan.torrence@gmail.com',
+        to: 'jenniferxiao@college.harvard.edu',
         from: "aidan.torrence@gmail.com", // Change to your verified sender
         dynamicTemplateData: {
           description: req.body.description,
