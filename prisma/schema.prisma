@@ -8,27 +8,28 @@ datasource db {
 }
 
 model Outfit {
-  id              Int              @id @default(autoincrement())
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @default(now()) @updatedAt
-  description     String
-  content         String?
-  kibbeTypes      String[]
-  images          String[]
-  occasions       String[]
-  aesthetic       String
-  seasonalColors  String[]
-  purchaseLink    String?
-  postReason      String?
-  published       Boolean          @default(false)
-  owner           User             @relation(fields: [ownerId], references: [uid])
-  ownerId         String
-  FlaggedContent  FlaggedContent[]
-  upvotes         Int              @default(0)
-  downvotes       Int              @default(0)
-  Comment         Comment[]
-  postVote        PostVote[]
-  optimizedImages String[]
+  id               Int              @id @default(autoincrement())
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @default(now()) @updatedAt
+  description      String
+  content          String?
+  kibbeTypes       String[]
+  images           String[]
+  imagesOptimized  String[]
+  imagesThumbnails String[]
+  occasions        String[]
+  aesthetic        String
+  seasonalColors   String[]
+  purchaseLink     String?
+  postReason       String?
+  published        Boolean          @default(false)
+  owner            User             @relation(fields: [ownerId], references: [uid])
+  ownerId          String
+  FlaggedContent   FlaggedContent[]
+  upvotes          Int              @default(0)
+  downvotes        Int              @default(0)
+  Comment          Comment[]
+  postVote         PostVote[]
 }
 
 model Comment {

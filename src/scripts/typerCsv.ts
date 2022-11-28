@@ -38,7 +38,7 @@ const execute = async function () {
     };
   });
 
-  const outfit = await prisma.outfit.createMany({
+  await prisma.outfit.createMany({
     data: convertedRecords,
   });
 };
@@ -88,31 +88,32 @@ const convert = async function () {
 
 async function constraintImage(
   buffer: any,
+  byteSize = 100000,
   quality = 100,
-  drop = 10
+  drop = 10,
 ): Promise<any> {
   const done = await sharp(buffer)
-    .resize({ width: 400, withoutEnlargement: true })
+    .resize({ width: 450, withoutEnlargement: true })
     .jpeg({
       quality,
       mozjpeg: true,
     })
     .toBuffer();
 
-  if (done.byteLength > 30000) {
+  if (done.byteLength > byteSize) {
     return constraintImage(buffer, quality - drop);
   }
 
   return done;
 }
 
-const optimizeImage = async (url: string) => {
+const optimizeImage = async (url: string, byteSize = 100000) => {
   try {
     const response = await axios.get(url, {
       responseType: "arraybuffer",
     });
     const buffer = Buffer.from(response.data, "binary");
-    const optimizedBuffer = await constraintImage(buffer);
+    const optimizedBuffer = await constraintImage(buffer, byteSize);
     //   .resize({ width: 300 })
     //   .toBuffer();
 
@@ -138,13 +139,17 @@ const optimizeImages = async function () {
 
   for (let i = 0; i < outfits.length; i++) {
     const filteredOutfit = outfits[i] as any;
-    const optimizedImages = [];
+    const imagesOptimized = [];
+    const imagesThumbnails = [];
     for (let j = 0; j < filteredOutfit.images.length; j++) {
       const imageUrl = filteredOutfit.images[j];
-      const optimizedImageUrl = await optimizeImage(imageUrl);
-      optimizedImages.push(optimizedImageUrl);
+      const imageOptimized = await optimizeImage(imageUrl, 100000);
+      const imageThumbnail = await optimizeImage(imageUrl, 30000);
+      imagesOptimized.push(imageOptimized);
+      imagesThumbnails.push(imageThumbnail);
     }
-    filteredOutfit.images = optimizedImages;
+    filteredOutfit.imagesOptimized = imagesOptimized;
+    filteredOutfit.imagesThumbnails = imagesThumbnails;
     convertedOutfits.push(filteredOutfit);
   }
 
@@ -155,13 +160,14 @@ const optimizeImages = async function () {
         id: outfit.id,
       },
       data: {
-        images: outfit.images,
+        imagesOptimized: outfit.imagesOptimized,
+        imagesThumbnails: outfit.imagesThumbnails,
       },
     });
   }
 };
 
-// optimizeImages();
+optimizeImages();
 
 // const optimizeUserImages = async function () {
 //   const users = await prisma.user.findMany();
