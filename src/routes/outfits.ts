@@ -1,5 +1,6 @@
 import Router from "express-promise-router";
 import { PrismaClient } from "@prisma/client";
+import sgMail from "@sendgrid/mail";
 
 const prisma = new PrismaClient();
 
@@ -11,6 +12,14 @@ outfits.get("/outfits", async (req, res) => {
       include: {
         owner: true,
       },
+      orderBy: [
+        {
+          createdAt: "desc",
+        },
+        {
+          upvotes: "desc",
+        },
+      ],
     });
     res.json(outfits);
   } catch (e) {
@@ -24,7 +33,8 @@ outfits.get("/outfits-with-votes", async (req, res) => {
   try {
     // custom sql query, get outfits with the vote count using the postVote table, get user data from the user table
     // const outfits = await prisma.$queryRaw`SELECT o.*, sum(pv.vote) AS voteCount FROM "Outfit" o LEFT JOIN "PostVote" pv ON o.id = pv."outfitId" GROUP BY o.id`;
-    const outfits = await prisma.$queryRaw`SELECT o.*, sum(pv.vote)::int AS votes, u.* FROM "Outfit" o LEFT JOIN "PostVote" pv ON o.id = pv."outfitId" LEFT JOIN "User" u ON o."ownerId" = u.uid GROUP BY o.id, u.uid`;
+    const outfits =
+      await prisma.$queryRaw`SELECT o.*, sum(pv.vote)::int AS votes, u.* FROM "Outfit" o LEFT JOIN "PostVote" pv ON o.id = pv."outfitId" LEFT JOIN "User" u ON o."ownerId" = u.uid GROUP BY o.id, u.uid`;
     res.json(outfits);
   } catch (e) {
     console.log(e);
@@ -45,13 +55,13 @@ outfits.get("/outfit/:id", async (req, res) => {
         Comment: {
           include: {
             owner: true,
-          }
+          },
         },
         postVote: {
           where: {
             uid,
-          }
-        }
+          },
+        },
       },
     });
 
@@ -64,19 +74,70 @@ outfits.get("/outfit/:id", async (req, res) => {
       },
     });
 
-    res.json({ ...outfit, votes: (outfit?.upvotes || 0) - (outfit?.downvotes || 0) + (votesPerPost?._sum?.vote || 0) });
-
+    res.json({
+      ...outfit,
+      votes:
+        (outfit?.upvotes || 0) -
+        (outfit?.downvotes || 0) +
+        (votesPerPost?._sum?.vote || 0),
+    });
   } catch (e) {
     res.json(e);
   }
 });
 
 outfits.post("/outfit", async (req, res) => {
+  const { ownerId, kibbeTypes } = req.body;
+  const modusTypes = {
+    D: "Queen",
+    DC: "Boss",
+    FG: "Coquette",
+    FN: "Supermodel",
+    R: "Siren",
+    SC: "Lady",
+    SD: "Feline",
+    SG: "Ingenue",
+    SN: "Vixen",
+    TR: "Femme Fatale",
+  } as any;
+
   try {
+    const user = await prisma.user.findUnique({
+      where: {
+        uid: ownerId,
+      },
+    });
+
     const outfit = await prisma.outfit.create({
-      data: req.body,
+      data: {
+        ...req.body,
+        kibbeTypes:
+          (!kibbeTypes || !kibbeTypes.length) && user?.modusType
+            ? [modusTypes[user?.modusType || ""]]
+            : kibbeTypes,
+      },
     });
     res.status(200).send(outfit);
+
+    sgMail.setApiKey(process.env.SENDGRID_API_KEY || "");
+    const messages = [
+      {
+        // to: 'jenniferxiao@college.harvard.edu',
+        to: "aidan.torrence@gmail.com",
+        from: "aidan.torrence@gmail.com", // Change to your verified sender
+        dynamicTemplateData: {
+          description: req.body.description,
+          content: req.body.content,
+          seasonalColors: req.body.seasonalColors.join(", "),
+          modusTypes: req.body.kibbeTypes.join(", "),
+          postReason: req.body.postReason,
+          imageUrl: req.body.images[0],
+          userName: user?.firstName + " " + user?.lastName,
+        },
+        templateId: "d-20efd7aaa1774f708c692069875a5124",
+      },
+    ];
+    await sgMail.send(messages);
   } catch (e) {
     console.log(e);
     res.status(400).send("outfit failed");
