@@ -163,32 +163,32 @@ const optimizeImages = async function () {
 
 // optimizeImages();
 
-const optimizeUserImages = async function () {
-  const users = await prisma.user.findMany();
+// const optimizeUserImages = async function () {
+//   const users = await prisma.user.findMany();
 
-  const convertedUsers = [] as any;
+//   const convertedUsers = [] as any;
 
-  for (let i = 0; i < users.length; i++) {
-    const filteredUser = users[i] as any;
-    const optimizedImages = [];
-    for (let j = 0; j < filteredUser.images.length; j++) {
-      const imageUrl = filteredUser.images[j];
-      const optimizedImageUrl = await optimizeImage(imageUrl);
-      optimizedImages.push(optimizedImageUrl);
-    }
-    filteredUser.images = optimizedImages;
-    convertedUsers.push(filteredUser);
-  }
+//   for (let i = 0; i < users.length; i++) {
+//     const filteredUser = users[i] as any;
+//     const optimizedImages = [];
+//     for (let j = 0; j < filteredUser.images.length; j++) {
+//       const imageUrl = filteredUser.images[j];
+//       const optimizedImageUrl = await optimizeImage(imageUrl);
+//       optimizedImages.push(optimizedImageUrl);
+//     }
+//     filteredUser.images = optimizedImages;
+//     convertedUsers.push(filteredUser);
+//   }
 
-  for (let i = 0; i < convertedUsers.length; i++) {
-    const user = convertedUsers[i];
-    await prisma.user.update({
-      where: {
-        id: user.id,
-      },
-      data: {
-        images: user.images,
-      },
-    });
-  }
-}
+//   for (let i = 0; i < convertedUsers.length; i++) {
+//     const user = convertedUsers[i];
+//     await prisma.user.update({
+//       where: {
+//         id: user.id,
+//       },
+//       data: {
+//         images: user.images,
+//       },
+//     });
+//   }
+// }
