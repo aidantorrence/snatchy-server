@@ -115,7 +115,7 @@ outfits.post("/outfit", async (req, res) => {
     const outfit = await prisma.outfit.create({
       data: {
         ...req.body,
-        kibbeTypes: modusTypes
+        kibbeTypes: outfitModusTypes
       },
     });
     res.status(200).send(outfit);
@@ -124,7 +124,7 @@ outfits.post("/outfit", async (req, res) => {
     const messages = [
       {
         // to: 'jenniferxiao@college.harvard.edu',
-        to: "aidan.torrence@gmail.com",
+        to: 'aidan.torrence@gmail.com',
         from: "aidan.torrence@gmail.com", // Change to your verified sender
         dynamicTemplateData: {
           description: req.body.description,
