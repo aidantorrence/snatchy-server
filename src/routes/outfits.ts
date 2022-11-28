@@ -108,13 +108,14 @@ outfits.post("/outfit", async (req, res) => {
       },
     });
 
+    const outfitModusTypes = (!kibbeTypes || !kibbeTypes.length) && user?.modusType
+            ? [modusTypes[user?.modusType || ""]]
+            : kibbeTypes
+
     const outfit = await prisma.outfit.create({
       data: {
         ...req.body,
-        kibbeTypes:
-          (!kibbeTypes || !kibbeTypes.length) && user?.modusType
-            ? [modusTypes[user?.modusType || ""]]
-            : kibbeTypes,
+        kibbeTypes: modusTypes
       },
     });
     res.status(200).send(outfit);
@@ -129,7 +130,7 @@ outfits.post("/outfit", async (req, res) => {
           description: req.body.description,
           content: req.body.content,
           seasonalColors: req.body.seasonalColors.join(", "),
-          modusTypes: req.body.kibbeTypes.join(", "),
+          modusTypes: outfitModusTypes.join(", "),
           postReason: req.body.postReason,
           imageUrl: req.body.images[0],
           userName: user?.firstName + " " + user?.lastName,
