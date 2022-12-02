@@ -18,6 +18,6 @@ app.use(router);
 
 app.listen(process.env.PORT || 8080, () => {
   console.log(
-    `instaheat-server listening at http://localhost:${process.env.PORT || 8080}`
+    `typer-server listening at http://localhost:${process.env.PORT || 8080}`
   );
 });
