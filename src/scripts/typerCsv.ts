@@ -62,7 +62,7 @@ const convert = async function () {
 
   const convertedOutfits = outfits.map((outfit: any) => {
     const modusTypes = outfit.kibbeTypes.map((type: string) => {
-      console.log(type, kibbeMappings[type]);
+      // console.log(type, kibbeMappings[type]);
       return kibbeMappings[type];
     });
     return {
@@ -89,6 +89,7 @@ const convert = async function () {
 async function constraintImage(
   buffer: any,
   byteSize = 100000,
+  stack = 0,
   quality = 100,
   drop = 10,
 ): Promise<any> {
@@ -99,9 +100,9 @@ async function constraintImage(
       mozjpeg: true,
     })
     .toBuffer();
-
-  if (done.byteLength > byteSize) {
-    return constraintImage(buffer, quality - drop);
+  // console.log('inners?', byteSize, done.byteLength)
+  if (done.byteLength > byteSize && stack < 10) {
+    return constraintImage(buffer, byteSize, stack + 1, quality - drop);
   }
 
   return done;
@@ -109,6 +110,7 @@ async function constraintImage(
 
 const optimizeImage = async (url: string, byteSize = 100000) => {
   try {
+    // console.log('hello?')
     const response = await axios.get(url, {
       responseType: "arraybuffer",
     });
@@ -150,6 +152,7 @@ const optimizeImages = async function () {
     }
     filteredOutfit.imagesOptimized = imagesOptimized;
     filteredOutfit.imagesThumbnails = imagesThumbnails;
+    // console.log('filteredOutfit', filteredOutfit)
     convertedOutfits.push(filteredOutfit);
   }
 

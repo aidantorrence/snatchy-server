@@ -11,6 +11,11 @@ outfits.get("/outfits", async (req, res) => {
     const outfits = await prisma.outfit.findMany({
       include: {
         owner: true,
+        postVote: {
+          where: {
+            uid,
+          },
+        },
       },
       orderBy: [
         {
