@@ -16,6 +16,11 @@ outfits.get("/outfits", async (req, res) => {
             uid,
           },
         },
+        _count: {
+          select: {
+            Comment: true,
+          },
+        },
       },
       orderBy: [
         {
