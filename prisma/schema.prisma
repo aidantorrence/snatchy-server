@@ -64,6 +64,7 @@ model User {
   userType         UserType         @default(MEMBER)
   Comment          Comment[]
   hasSeenModusType Boolean          @default(false)
+  hasSeenIntroQuiz Boolean          @default(false)
   postVote         PostVote[]
 }
 
