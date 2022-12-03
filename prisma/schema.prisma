@@ -65,6 +65,7 @@ model User {
   Comment          Comment[]
   hasSeenModusType Boolean          @default(false)
   hasSeenIntroQuiz Boolean          @default(false)
+  introQuizAnswers Json             @default("{}")
   postVote         PostVote[]
 }
 
