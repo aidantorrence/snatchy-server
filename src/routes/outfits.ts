@@ -31,7 +31,18 @@ outfits.get("/outfits", async (req, res) => {
         },
       ],
     });
-    res.json(outfits);
+    const outfitVotes =
+      await prisma.$queryRaw`SELECT o.id, coalesce(sum(pv.vote), 0)::int AS votes FROM "Outfit" o right JOIN "PostVote" pv ON o.id = pv."outfitId" LEFT JOIN "User" u ON o."ownerId" = u.uid GROUP BY o.id, u.uid` as any;
+    const outfitsWithVotes = outfits.map((outfit) => {
+      const outfitVote = outfitVotes.find(
+        (outfitVote: any) => outfitVote.id === outfit.id
+      );
+      return {
+        ...outfit,
+        votes: outfitVote?.votes || 0,
+      };
+    });
+    res.json(outfitsWithVotes);
   } catch (e) {
     console.log(e);
     res.json(e);
