@@ -48,6 +48,54 @@ outfits.get("/outfits", async (req, res) => {
     res.json(e);
   }
 });
+outfits.get("/outfits-paginated", async (req, res) => {
+  const uid = req.query.uid as string;
+  try {
+    const outfits = await prisma.outfit.findMany({
+      take: 10,
+      cursor: {
+        id: parseInt(req.query.cursor as string, 10),
+      },
+      include: {
+        owner: true,
+        postVote: {
+          where: {
+            uid,
+          },
+        },
+        _count: {
+          select: {
+            Comment: true,
+          },
+        },
+      },
+      orderBy: [
+        {
+          id: "desc",
+        },
+        {
+          upvotes: "desc",
+        },
+      ],
+    });
+    const myCursor = outfits[9].id;
+    const outfitVotes =
+      await prisma.$queryRaw`SELECT o.id, coalesce(sum(pv.vote), 0)::int AS votes FROM "Outfit" o right JOIN "PostVote" pv ON o.id = pv."outfitId" LEFT JOIN "User" u ON o."ownerId" = u.uid GROUP BY o.id, u.uid` as any;
+    const outfitsWithVotes = outfits.map((outfit) => {
+      const outfitVote = outfitVotes.find(
+        (outfitVote: any) => outfitVote.id === outfit.id
+      );
+      return {
+        ...outfit,
+        votes: outfitVote?.votes || 0,
+      };
+    });
+    res.json(outfitsWithVotes);
+  } catch (e) {
+    console.log(e);
+    res.json(e);
+  }
+});
 
 outfits.get("/outfits-with-votes", async (req, res) => {
   const uid = req.query.uid as string;
