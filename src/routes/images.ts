@@ -1,5 +1,6 @@
 import Router from "express-promise-router";
 import axios from 'axios';
+const fs = require('fs');
 import FormData from 'form-data';
 import {
   getStorage,
@@ -32,7 +33,8 @@ images.post("/upload-image-seasonal-color-analysis", async (req: any, res) => {
   try {
     const { imageUrl } = req.body;
     const formData = new FormData();
-    const file = new File([imageUrl], 'image.png', { type: 'image/png' });
+    const file = new fs.File([imageUrl], 'image.png', { type: 'image/png' });
+
     formData.append('image', file);
     const { data } = await axios.post('54.193.65.224/classify', formData);
     res.json(data);
