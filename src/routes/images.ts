@@ -14,8 +14,6 @@ import { getApp, getApps, initializeApp } from "firebase/app";
 import { v4 as uuidv4 } from "uuid";
 import { firebaseConfig } from "../config";
 
-const request = require("request");
-
 const images = Router();
 
 !getApps().length ? initializeApp(firebaseConfig) : getApp();
