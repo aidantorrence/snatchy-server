@@ -34,7 +34,7 @@ images.post("/upload-image-seasonal-color-analysis", async (req: any, res) => {
   try {
     const { uid, imageUrl } = req.body;
     const response = await axios.get(imageUrl, { responseType: 'arraybuffer' });
-    const buffer = Buffer.from(response.data);
+    // const buffer = Buffer.from(response.data);
 
     fs.writeFileSync(`src/scripts/seasonal_color_analysis_${uid}.jpg`, response.data);
     // const formData = new FormData();
@@ -59,6 +59,7 @@ images.post("/upload-image-seasonal-color-analysis", async (req: any, res) => {
     res.json(data);
   } catch (e) {
     console.log(e);
+    res.json(e);
   }
 });
 
