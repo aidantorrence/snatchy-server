@@ -59,7 +59,7 @@ images.post("/upload-image-seasonal-color-analysis", async (req: any, res) => {
     res.json(data);
   } catch (e) {
     console.log(e);
-    res.json(e);
+    res.status(500).json(e);
   }
 });
 
