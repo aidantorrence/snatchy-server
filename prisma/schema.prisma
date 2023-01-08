@@ -111,3 +111,27 @@ model PostVote {
 
   @@unique([uid, outfitId])
 }
+
+model Training {
+  id          Int         @id @default(autoincrement())
+  uid         String      @unique
+  replicateId String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  user        WebsiteUser @relation(fields: [userId], references: [id])
+  userId      Int
+  version     String?
+  name        String?
+  images      String[]    @default([])
+  imageZip    String?
+  purchased   Boolean     @default(false)
+}
+
+model WebsiteUser {
+  id        Int        @id @default(autoincrement())
+  email     String     @unique
+  name      String?
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  Training  Training[]
+}

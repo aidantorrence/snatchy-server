@@ -1,14 +1,14 @@
 import express from "express";
 import router from "./src/routes";
-const multer  = require('multer')
+// const multer  = require('multer')
 
 import bodyParser from "body-parser";
 const cors = require("cors");
 
 const app = express();
 
-const multiPartDataParser = multer({ limits: { fieldSize: 10000 * 1024 * 1024 } })
-app.use(multiPartDataParser.any())
+// const multiPartDataParser = multer({ limits: { fieldSize: 10000 * 1024 * 1024 } })
+// app.use(multiPartDataParser.any())
 
 app.use(cors());
 app.use(bodyParser.json());

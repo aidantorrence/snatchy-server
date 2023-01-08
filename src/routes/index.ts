@@ -1,5 +1,6 @@
 import { Router } from "express";
 import comments from "./comments";
+import stableDiffusion from "./replicate";
 import images from "./images";
 import outfits from "./outfits";
 import users from "./users";
@@ -14,6 +15,7 @@ router.use(comments);
 // router.use(sendGrid);
 router.use(images);
 router.use(votes);
+router.use(stableDiffusion)
 
 
 export default router;
