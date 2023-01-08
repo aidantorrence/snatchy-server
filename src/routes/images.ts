@@ -14,11 +14,15 @@ import { getApp, getApps, initializeApp } from "firebase/app";
 import { v4 as uuidv4 } from "uuid";
 import { firebaseConfig } from "../config";
 
+const multer = require("multer");
+
+const upload = multer();
+
 const images = Router();
 
 !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
-images.post("/upload-images", async (req: any, res) => {
+images.post("/upload-images", upload.array("files"), async (req: any, res) => {
   try {
     const uuid = uuidv4();
     const fileRef = ref(getStorage(), uuid);
