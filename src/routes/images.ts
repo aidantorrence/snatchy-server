@@ -2,12 +2,9 @@ import Router from "express-promise-router";
 import axios from "axios";
 const fs = require("fs");
 const FormData = require("form-data");
-import { Readable } from "stream";
 import {
   getStorage,
   ref,
-  getDownloadURL,
-  uploadBytesResumable,
   uploadString,
 } from "firebase/storage";
 import { getApp, getApps, initializeApp } from "firebase/app";

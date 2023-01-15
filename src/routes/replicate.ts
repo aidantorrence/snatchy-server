@@ -87,14 +87,12 @@ stableDiffusion.post(
             userId: user?.id,
             images,
             imageZip: downloadUrl,
-            name: req.body.name,
           },
           create: {
             uid: req.body.uid,
             userId: user?.id,
             images,
             imageZip: downloadUrl,
-            name: req.body.name,
           },
         });
       }
@@ -167,17 +165,6 @@ stableDiffusion.post("/dreambooth-training", async (req, res) => {
   }
 });
 
-// stableDiffusion.post("/dreambooth-training-one-off", async (req, res) => {
-//   await prisma.training.create({
-//     data: {
-//       id: req.body.id,
-//       uid: "tRxfBqIA4RSbUMG1egdiklz0Mv02",
-//       version: req.body.version,
-//       images: [],
-//       name: req.body.name,
-//     },
-//   });
-// });
 
 stableDiffusion.patch("/dreambooth-training", async (req, res) => {
   const { id } = req.body;
@@ -421,7 +408,8 @@ stableDiffusion.post("/stable-diffusion-predict", async (req, res) => {
         version:
           "5b703f0fa41880f918ab1b12c88a25b468c18639be17515259fb66a83f4ad0a4",
         input: { prompt: req.body.prompt },
-        webhook_url: "https://e5db-104-139-116-146.ngrok.io/api/webhooks/replicate/predictions",
+        webhook_url:
+          "https://e5db-104-139-116-146.ngrok.io/api/webhooks/replicate/predictions",
       },
       {
         headers: {
