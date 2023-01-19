@@ -165,7 +165,6 @@ stableDiffusion.post("/dreambooth-training", async (req, res) => {
   }
 });
 
-
 stableDiffusion.patch("/dreambooth-training", async (req, res) => {
   const { id } = req.body;
   const training = await prisma.training.findUnique({
@@ -401,23 +400,57 @@ stableDiffusion.get("/dreambooth-trainings", async (req, res) => {
 });
 
 stableDiffusion.post("/stable-diffusion-predict", async (req, res) => {
+  const { prompts, outfit, celebrity, uid } = req.body;
   try {
-    const { data } = await axios.post(
-      "https://api.replicate.com/v1/predictions",
-      {
-        version:
-          "5b703f0fa41880f918ab1b12c88a25b468c18639be17515259fb66a83f4ad0a4",
-        input: { prompt: req.body.prompt },
-        webhook_url:
-          "https://e5db-104-139-116-146.ngrok.io/api/webhooks/replicate/predictions",
-      },
-      {
-        headers: {
-          Authorization: `Token ${process.env.REPLICATE_API_TOKEN}`,
+    for (let i = 0; i < prompts.length * 2; i++) {
+      await axios.post(
+        "https://api.replicate.com/v1/predictions",
+        {
+          version:
+            "5b703f0fa41880f918ab1b12c88a25b468c18639be17515259fb66a83f4ad0a4",
+          input: {
+            prompt: `${celebrity} ${prompts[i % prompts.length]}`,
+            init_image: outfit,
+            num_outputs: 4,
+          },
+          webhook_completed:
+            `https://5f28-104-139-116-146.ngrok.io/webhook-sd-prediction?uid=${uid}`,
         },
-      }
-    );
-    res.status(200).send(data);
+        {
+          headers: {
+            Authorization: `Token ${process.env.REPLICATE_API_TOKEN}`,
+          },
+        }
+      );
+    }
+    res.status(200).send({ message: "success" });
+  } catch (e) {
+    console.log(e);
+    res.status(400).send(e);
+  }
+});
+
+stableDiffusion.post("/webhook-sd-prediction", async (req, res) => {
+  const { uid } = req.query;
+  console.log('uid', uid)
+  console.log('req.body', req.body)
+  try {
+    const { input, id: replicateId, output } = req.body;
+
+    await prisma.mobilePrediction.create({
+      data: {
+        ownerId: uid as string,
+        prompt: input.prompt,
+        replicateId,
+        images: {
+          create: output.map((image: any) => {
+            return { imageUrl: image };
+          }),
+        },
+      },
+    });
+
+    res.status(200).send({ message: "success" });
   } catch (e) {
     console.log(e);
     res.status(400).send(e);

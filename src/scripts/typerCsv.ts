@@ -100,7 +100,6 @@ async function constraintImage(
       mozjpeg: true,
     })
     .toBuffer();
-  // console.log('inners?', byteSize, done.byteLength)
   if (done.byteLength > byteSize && stack < 10) {
     return constraintImage(buffer, byteSize, stack + 1, quality - drop);
   }
@@ -110,14 +109,11 @@ async function constraintImage(
 
 const optimizeImage = async (url: string, byteSize = 100000) => {
   try {
-    // console.log('hello?')
     const response = await axios.get(url, {
       responseType: "arraybuffer",
     });
     const buffer = Buffer.from(response.data, "binary");
     const optimizedBuffer = await constraintImage(buffer, byteSize);
-    //   .resize({ width: 300 })
-    //   .toBuffer();
 
     // upload image to firebase
     const uuid = uuidv4();
@@ -170,7 +166,7 @@ const optimizeImages = async function () {
   }
 };
 
-optimizeImages();
+// optimizeImages();
 
 // const optimizeUserImages = async function () {
 //   const users = await prisma.user.findMany();
@@ -201,3 +197,85 @@ optimizeImages();
 //     });
 //   }
 // }
+
+const convertSeasonalColors = async function () {
+  const outfits = await prisma.outfit.findMany();
+
+  const convertedOutfits = outfits.map((outfit: any) => {
+    const seasonalColors: string[] = outfit.seasonalColors.map((seasonalColor: string) => {
+      return seasonalColor.split(' ')?.at(-1);
+    });
+    const seasonalColorsDupesRemoved = [...new Set(seasonalColors)];
+    return {
+      id: outfit.id,
+      seasonalColors: seasonalColorsDupesRemoved,
+    };
+  });
+  console.log(convertedOutfits);
+
+  for (let i = 0; i < convertedOutfits.length; i++) {
+    const outfit = convertedOutfits[i];
+    await prisma.outfit.update({
+      where: {
+        id: outfit.id,
+      },
+      data: {
+        seasonalColors: outfit.seasonalColors,
+      },
+    });
+  }
+};
+
+// convertSeasonalColors();
+
+const convertExistingKibbeTypes = async function () {
+  const fileContent = await fs.readFile("src/scripts/Recs_mobile.csv");
+
+  const records = parse(fileContent, {
+    columns: true,
+    skip_empty_lines: true,
+  });
+
+  const convertedRecords = records.map((record: any) => {
+    return {
+      ...record,
+      seasonalColors: record.seasonalColors.split(", "),
+      occasions: record.occasions.split(", "),
+      kibbeTypes: record.kibbeTypes.split(", "),
+      upvotes: parseInt(record.upvotes, 10),
+      downvotes: parseInt(record.downvotes, 10),
+    };
+  });
+
+  const outfits = await prisma.outfit.findMany();
+  // console.log('outfits', outfits)
+
+  const convertedOutfits = outfits?.map((outfit: any) => {
+    if (convertedRecords.find((record: any) => record.description === outfit.description)) {
+      const record = convertedRecords.find((record: any) => record.description === outfit.description);
+      // console.log('record', record);
+    return {
+      id: outfit.id,
+      kibbeTypes: record.kibbeTypes,
+    };
+    } else {
+      return null
+    }
+  }).filter((outfit: any) => outfit !== null);
+
+  // console.log('convertedOutfits', convertedOutfits);
+
+  for (let i = 0; i < convertedOutfits.length; i++) {
+    const outfit = convertedOutfits[i];
+    await prisma.outfit.update({
+      where: {
+        id: outfit?.id,
+      },
+      data: {
+        kibbeTypes: outfit?.kibbeTypes,
+      },
+    });
+  }
+};
+
+convertExistingKibbeTypes();
