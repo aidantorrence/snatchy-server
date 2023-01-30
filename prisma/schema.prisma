@@ -72,6 +72,7 @@ model User {
   introQuizAnswers     Json               @default("{}")
   postVote             PostVote[]
   MobilePrediction     MobilePrediction[]
+  MobileTraining       MobileTraining[]
 }
 
 model Block {
@@ -146,7 +147,7 @@ model WebsiteUser {
 model Prediction {
   id          Int               @id @default(autoincrement())
   replicateId String
-  prompt      String
+  prompt      String?
   images      PredictionImage[]
   user        WebsiteUser       @relation(fields: [userId], references: [id])
   userId      Int
@@ -174,14 +175,16 @@ model MidjourneyPhoto {
 }
 
 model MobilePrediction {
-  id          Int                     @id @default(autoincrement())
-  replicateId String
-  prompt      String
-  images      MobilePredictionImage[]
-  owner       User                    @relation(fields: [ownerId], references: [uid])
-  ownerId     String
-  createdAt   DateTime                @default(now())
-  updatedAt   DateTime                @default(now()) @updatedAt
+  id             Int                     @id @default(autoincrement())
+  replicateId    String?                 @unique
+  prompt         String
+  theme          String?
+  images         MobilePredictionImage[]
+  owner          User                    @relation(fields: [ownerId], references: [uid])
+  ownerId        String
+  createdAt      DateTime                @default(now())
+  updatedAt      DateTime                @default(now()) @updatedAt
+  MobileTraining MobileTraining[]
 }
 
 model MobilePredictionImage {
@@ -191,4 +194,24 @@ model MobilePredictionImage {
   prediction   MobilePrediction @relation(fields: [predictionId], references: [id])
   createdAt    DateTime         @default(now())
   updatedAt    DateTime         @default(now()) @updatedAt
+  isSaved      Boolean          @default(false)
+}
+
+model MobileTraining {
+  id              Int              @id @default(autoincrement())
+  replicateId     String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  version         String?          @unique
+  name            String?
+  images          String[]         @default([])
+  imageZip        String?
+  purchased       Boolean          @default(false)
+  deleted         Boolean          @default(false)
+  subjectFeatures String?
+  subjectDetails  String[]         @default([])
+  prediction      MobilePrediction @relation(fields: [predictionId], references: [id])
+  owner           User             @relation(fields: [ownerId], references: [uid])
+  ownerId         String
+  predictionId    Int
 }

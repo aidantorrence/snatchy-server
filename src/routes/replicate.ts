@@ -6,6 +6,7 @@ import { v4 as uuidv4 } from "uuid";
 import { firebaseConfig } from "../config";
 import { Configuration, OpenAIApi } from "openai";
 import { PrismaClient } from "@prisma/client";
+import { createNoSubstitutionTemplateLiteral } from "typescript";
 const sharp = require("sharp");
 
 const prisma = new PrismaClient();
@@ -105,7 +106,29 @@ stableDiffusion.post(
 );
 
 stableDiffusion.post("/dreambooth-training", async (req, res) => {
-  const { id, downloadUrl } = req.body;
+  const { outfit, prompts, themes, celebrity, uid, images } = req.body;
+  console.log({ outfit: outfit, 
+  prompts:  prompts,
+  themes:  themes,
+  celebrity:  celebrity,
+  uid:  uid,
+  images: images, }
+  )
+
+  let zip = new AdmZip();
+  for (const image of images) {
+    const { data } = await axios.get(image, { responseType: 'arraybuffer' })
+    const buffer = Buffer.from(data, 'binary');
+    const optimizedBuffer = await constraintImage(buffer, 100000);
+    zip.addFile('images', optimizedBuffer);
+  }
+
+  const zipFileContents = zip.toBuffer();
+
+  const uuid = uuidv4();
+  const fileRef = ref(getStorage(), uuid + ".zip");
+  await uploadBytes(fileRef, zipFileContents);
+  const downloadUrl = await getDownloadURL(fileRef);
 
   const body = {
     input: {
@@ -133,32 +156,32 @@ stableDiffusion.post("/dreambooth-training", async (req, res) => {
       save_guidance_scale: 7.5,
       with_prior_preservation: true,
       gradient_accumulation_steps: 1,
+      ckpt_base: 'https://huggingface.co/prompthero/openjourney-v2/resolve/main/openjourney-v2.ckpt',
     },
     model: "aidantorrence/dreambooth",
     trainer_version:
-      "cd3f925f7ab21afaef7d45224790eedbb837eeac40d22e8fefe015489ab644aa",
+      "9c41656f8ae2e3d2af4c1b46913d7467cd891f2c1c5f3d97f1142e876e63ed7a",
   };
   try {
-    const { data } = await axios.post(
-      "https://dreambooth-api-experimental.replicate.com/v1/trainings",
-      body,
-      {
-        headers: {
-          Authorization: `Token ${process.env.REPLICATE_API_TOKEN}`,
-        },
-      }
-    );
+    // const { data } = await axios.post(
+    //   "https://dreambooth-api-experimental.replicate.com/v1/trainings",
+    //   body,
+    //   {
+    //     headers: {
+    //       Authorization: `Token ${process.env.REPLICATE_API_TOKEN}`,
+    //     },
+    //   }
+    // );
 
-    await prisma.training.update({
-      where: {
-        id,
-      },
-      data: {
-        replicateId: data.id,
-      },
-    });
+    // await prisma.mobileTraining.create({
+    //   data: {
+    //     replicateId: data.id,
+    //     images,
+    //   },
+    // });
 
-    res.status(200).send(data);
+    // res.status(200).send(data);
+    res.status(200).send('success');
   } catch (e) {
     console.log(e);
     res.status(400).send(e);
@@ -197,224 +220,24 @@ stableDiffusion.patch("/dreambooth-training", async (req, res) => {
   }
 });
 
-// stableDiffusion.post("/dreambooth-file-upload", async (req, res) => {
-//   try {
-//     let zip = new AdmZip();
-//     // zip.addLocalFile("./files/cropped-aidan-1.png");
-//     // zip.addLocalFile("./files/cropped-aidan-2.png");
-//     // zip.addLocalFile("./files/cropped-aidan-3.png");
-//     // zip.addLocalFile("./files/cropped-aidan-4.png");
-//     // zip.addLocalFile("./files/cropped-aidan-5.png");
-//     // zip.addLocalFile("./files/cropped-aidan-6.png");
-//     // zip.addLocalFile("./files/cropped-aidan-7.png");
-//     // zip.addLocalFile("./files/cropped-aidan-8.png");
-//     // zip.addLocalFile("./files/cropped-aidan-9.png");
-//     // zip.addLocalFile("./files/cropped-aidan-10.png");
-//     // zip.addLocalFile("./files/cropped-aidan-11.png");
-//     // zip.addLocalFile("./files/cropped-aidan-12.png");
-//     // zip.addLocalFile("./files/cropped-aidan-13.png");
-//     zip.addLocalFile(
-//       "./files/generated_photos_5e011b607b1b30000702f671.jpg.jpg"
-//     );
-//     zip.addLocalFile(
-//       "./files/generated_photos_5e680ad66d3b380006d5dcfb.jpg.jpg"
-//     );
-//     zip.addLocalFile(
-//       "./files/generated_photos_5e683be56d3b380006e0a707.jpg.jpg"
-//     );
-//     zip.addLocalFile(
-//       "./files/generated_photos_5e685d416d3b380006e82f67.jpg.jpg"
-//     );
-//     zip.addLocalFile(
-//       "./files/generated_photos_5e6835c16d3b380006df4fc5.jpg.jpg"
-//     );
-//     zip.addLocalFile(
-//       "./files/generated_photos_5e6839e36d3b380006e03525.jpg.jpg"
-//     );
-//     zip.addLocalFile(
-//       "./files/generated_photos_5e68019e6d3b380006d3c615.jpg.jpg"
-//     );
-//     zip.addLocalFile(
-//       "./files/generated_photos_5e68210c6d3b380006dad933.jpg.jpg"
-//     );
-//     zip.addLocalFile(
-//       "./files/generated_photos_5e6839086d3b380006e005e1.jpg.jpg"
-//     );
-//     zip.addLocalFile(
-//       "./files/generated_photos_5e6848346d3b380006e36db1.jpg.jpg"
-//     );
-//     zip.addLocalFile(
-//       "./files/generated_photos_5e6859006d3b380006e73b13.jpg.jpg"
-//     );
-//     zip.addLocalFile(
-//       "./files/generated_photos_5e011b607b1b30000702f671.jpg.jpg"
-//     );
-//     zip.addLocalFile(
-//       "./files/generated_photos_5e6859886d3b380006e7595b.jpg.jpg"
-//     );
-//     const zipFileContents = zip.toBuffer();
-
-//     const uuid = uuidv4();
-//     const fileRef = ref(getStorage(), uuid + ".zip");
-//     await uploadBytes(fileRef, zipFileContents);
-//     const downloadUrl = await getDownloadURL(fileRef);
-
-//     // const { data } = await axios.post('https://dreambooth-api-experimental.replicate.com/v1/upload/data.zip', zipFileContents, { headers: {
-//     //   Authorization: `Token ${process.env.REPLICATE_API_TOKEN}`,
-//     // } });
-//     res.status(200).send("success");
-//   } catch (e) {
-//     console.log(e);
-//     res.status(400).send(e);
-//   }
-// });
-
-// stableDiffusion.post("/dreambooth-train", async (req, res) => {
-//   const body = {
-//     input: {
-//       instance_prompt: "photo of sks woman",
-//       class_prompt: "photo of woman",
-//       instance_data:
-//         "https://firebasestorage.googleapis.com/v0/b/instaheat-dda39.appspot.com/o/106039f7-2a1d-4c5f-8920-ce27a3fbdef2.zip?alt=media&token=fa0e60ba-5922-4115-9b4f-dc8fa11f08e4",
-//       max_train_steps: 2000,
-//       num_class_images: 200,
-//       learning_rate: 1e-6,
-//       seed: 1337,
-//       adam_beta1: 0.9,
-//       adam_beta2: 0.999,
-//       resolution: 512,
-//       adam_epsilon: 1e-8,
-//       lr_scheduler: "constant",
-//       max_grad_norm: 1,
-//       n_save_sample: 4,
-//       num_train_epochs: 1,
-//       save_infer_steps: 50,
-//       train_batch_size: 1,
-//       adam_weight_decay: 0.01,
-//       prior_loss_weight: 1,
-//       sample_batch_size: 4,
-//       train_text_encoder: true,
-//       save_guidance_scale: 7.5,
-//       with_prior_preservation: true,
-//       gradient_accumulation_steps: 1,
-//     },
-//     model: "aidantorrence/dreambooth",
-//     trainer_version:
-//       "cd3f925f7ab21afaef7d45224790eedbb837eeac40d22e8fefe015489ab644aa",
-//   };
-//   try {
-//     const { data } = await axios.post(
-//       "https://dreambooth-api-experimental.replicate.com/v1/trainings",
-//       body,
-//       {
-//         headers: {
-//           Authorization: `Token ${process.env.REPLICATE_API_TOKEN}`,
-//         },
-//       }
-//     );
-//     res.status(200).send(data);
-//   } catch (e) {
-//     console.log(e);
-//     res.status(400).send(e);
-//   }
-// });
-
-// stableDiffusion.get("/dreambooth-training/:id", async (req, res) => {
-//   const { id } = req.params;
-//   try {
-//     const { data } = await axios.get(
-//       `https://dreambooth-api-experimental.replicate.com/v1/trainings/${id}`,
-//       {
-//         headers: {
-//           Authorization: `Token ${process.env.REPLICATE_API_TOKEN}`,
-//         },
-//       }
-//     );
-//     res.status(200).send(data);
-//   } catch (e) {
-//     console.log(e);
-//     res.status(400).send(e);
-//   }
-// });
-
-stableDiffusion.get("/dreambooth-prediction/:id", async (req, res) => {
-  const { id } = req.params;
-  try {
-    const { data } = await axios.get(
-      "https://api.replicate.com/v1/predictions/" + id,
-      {
-        headers: {
-          Authorization: `Token ${process.env.REPLICATE_API_TOKEN}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
-    res.status(200).send(data);
-  } catch (e) {
-    console.log(e);
-    res.status(400).send(e);
-  }
-});
-
-stableDiffusion.get("/dreambooth-predictions", async (req, res) => {
-  try {
-    const { data } = await axios.get(
-      "https://api.replicate.com/v1/predictions?cursor=cD0yMDIzLTAxLTAyKzA2JTNBMTclM0EyOS42MTMxNzIlMkIwMCUzQTAw",
-      {
-        headers: {
-          Authorization: `Token ${process.env.REPLICATE_API_TOKEN}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
-    res.status(200).send(data);
-  } catch (e) {
-    console.log(e);
-    res.status(400).send(e);
-  }
-});
-
-stableDiffusion.get("/dreambooth-trainings", async (req, res) => {
-  const email = req.query.email as string;
-  const user = await prisma.websiteUser.findUnique({
-    where: {
-      email,
-    },
-  });
-  try {
-    const trainings = await prisma.training.findMany({
-      where: {
-        userId: user?.id,
-      },
-      orderBy: [
-        {
-          createdAt: "desc",
-        },
-      ],
-    });
-    res.status(200).send(trainings);
-  } catch (e) {
-    console.log(e);
-    res.status(400).send(e);
-  }
-});
-
 stableDiffusion.post("/stable-diffusion-predict", async (req, res) => {
-  const { prompts, outfit, celebrity, uid } = req.body;
+  const { prompts, themes, outfit, celebrity, uid } = req.body;
+  const predictions = [];
   try {
     for (let i = 0; i < prompts.length * 2; i++) {
-      await axios.post(
+      const { data } = await axios.post(
         "https://api.replicate.com/v1/predictions",
         {
           version:
             "5b703f0fa41880f918ab1b12c88a25b468c18639be17515259fb66a83f4ad0a4",
           input: {
             prompt: `${celebrity} ${prompts[i % prompts.length]}`,
+            prompt_strength: 0.65,
             init_image: outfit,
             num_outputs: 4,
+            guidance_scale: 7.5,
           },
-          webhook_completed:
-            `https://5f28-104-139-116-146.ngrok.io/webhook-sd-prediction?uid=${uid}`,
+          webhook_completed: `${process.env.SERVER_URL}/webhook-sd-prediction?uid=${uid}`,
         },
         {
           headers: {
@@ -422,8 +245,38 @@ stableDiffusion.post("/stable-diffusion-predict", async (req, res) => {
           },
         }
       );
+      const prediction = await prisma.mobilePrediction.create({
+        data: {
+          ownerId: uid as string,
+          prompt: prompts[i % prompts.length],
+          replicateId: data.id,
+          theme: themes[i % themes.length].name,
+        },
+      });
+      predictions.push(prediction);
     }
-    res.status(200).send({ message: "success" });
+    res.status(200).send(predictions);
+  } catch (e) {
+    console.log(e);
+    res.status(400).send(e);
+  }
+});
+
+stableDiffusion.post("/stable-diffusion-train", async (req, res) => {
+  const { prompts, themes, outfit, celebrity, uid } = req.body;
+  const predictions = [];
+  try {
+    for (let i = 0; i < prompts.length * 2; i++) {
+      const prediction = await prisma.mobilePrediction.create({
+        data: {
+          ownerId: uid as string,
+          prompt: prompts[i % prompts.length],
+          theme: themes[i % themes.length].name,
+        },
+      });
+      predictions.push(prediction);
+    }
+    res.status(200).send(predictions);
   } catch (e) {
     console.log(e);
     res.status(400).send(e);
@@ -432,16 +285,13 @@ stableDiffusion.post("/stable-diffusion-predict", async (req, res) => {
 
 stableDiffusion.post("/webhook-sd-prediction", async (req, res) => {
   const { uid } = req.query;
-  console.log('uid', uid)
-  console.log('req.body', req.body)
   try {
     const { input, id: replicateId, output } = req.body;
-
-    await prisma.mobilePrediction.create({
-      data: {
-        ownerId: uid as string,
-        prompt: input.prompt,
+    const prediction = await prisma.mobilePrediction.update({
+      where: {
         replicateId,
+      },
+      data: {
         images: {
           create: output.map((image: any) => {
             return { imageUrl: image };
@@ -449,8 +299,62 @@ stableDiffusion.post("/webhook-sd-prediction", async (req, res) => {
         },
       },
     });
+    res.status(200).send(prediction);
+  } catch (e) {
+    console.log(e);
+    res.status(400).send(e);
+  }
+});
 
-    res.status(200).send({ message: "success" });
+stableDiffusion.get("/prediction-results", async (req, res) => {
+  const { ids } = req.query as { ids: string[] };
+  try {
+    const predictions = await prisma.mobilePrediction.findMany({
+      include: {
+        images: true,
+      },
+      where: {
+        id: {
+          in: ids?.map((id) => parseInt(id, 10)) as number[],
+        },
+      },
+    });
+    res.status(200).send(predictions);
+  } catch (e) {
+    console.log(e);
+    res.status(400).send(e);
+  }
+});
+
+stableDiffusion.patch("/prediction-images", async (req, res) => {
+  const { ids, data } = req.body;
+  try {
+    const predictions = await prisma.mobilePredictionImage.updateMany({
+      where: {
+        id: {
+          in: ids,
+        },
+      },
+      data,
+    });
+    res.status(200).send(predictions);
+  } catch (e) {
+    console.log(e);
+    res.status(400).send(e);
+  }
+});
+
+stableDiffusion.get("/prediction-images/:uid", async (req, res) => {
+  const { uid } = req.params;
+  try {
+    const images = await prisma.mobilePredictionImage.findMany({
+      where: { prediction: { ownerId: uid }, isSaved: true },
+      include: { prediction: true },
+      orderBy: {
+        id: "desc",
+      },
+    });
+    res.status(200).send(images);
   } catch (e) {
     console.log(e);
     res.status(400).send(e);
